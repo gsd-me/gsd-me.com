@@ -9,6 +9,7 @@ export interface EcosystemService {
   highlights: string[];
   metrics: { label: string; value: string }[];
   vendorLogos?: { src: string; alt: string }[];
+  image?: { src: string; alt: string };
 }
 
 export interface VerticalSolution {
@@ -93,27 +94,447 @@ export const HERO_METRICS = [
   { value: '85%+', label: 'Faster Doc Processing', context: 'GSD-DocAi · 4-week rollout' },
 ];
 
+export interface CarrotVisionWorkflowStep {
+  step: string;
+  title: string;
+  detail: string;
+}
+
+export interface CarrotVisionDifferentiator {
+  index: string;
+  title: string;
+  detail: string;
+}
+
+export interface CarrotVisionSuite {
+  id: string;
+  title: string;
+  subtitle: string;
+  items: { name: string; detail: string }[];
+}
+
+export interface CarrotVisionStandard {
+  code: string;
+  title: string;
+  detail: string;
+}
+
+export interface CarrotVisionProofItem {
+  location: string;
+  title: string;
+  metric?: string;
+  detail: string;
+}
+
+export interface CarrotVisionDetails {
+  eyebrow: string;
+  title: string;
+  tagline: string;
+  summary: string;
+  automatedAssistantPillars: { title: string; detail: string }[];
+  workflowSteps: CarrotVisionWorkflowStep[];
+  differentiators: CarrotVisionDifferentiator[];
+  suites: CarrotVisionSuite[];
+  standards: CarrotVisionStandard[];
+  controlRoomCapabilities: { title: string; detail: string }[];
+  liveSiteProofs: CarrotVisionProofItem[];
+}
+
+export const CARROT_VISION_DATA: CarrotVisionDetails = {
+  eyebrow: 'Carrot Vision · Industrial Health, Safety & Environment',
+  title: 'The Leading QHSE Management System Based on CCTV Cameras',
+  tagline: 'The Automated QHSE Engineer — 24/7 monitoring on existing CCTV with 18+ safety checks',
+  summary:
+    'Built specifically for industrial QHSE and site safety rules, Carrot Vision connects directly to existing CCTV cameras and runs 100% locally on your on-site servers so camera footage never leaves your plant.',
+  automatedAssistantPillars: [
+    {
+      title: 'Never Sleeps',
+      detail: 'Watches work zones across day, night, and weekend shifts without fatigue.',
+    },
+    {
+      title: 'Sees Everywhere',
+      detail: 'Monitors all connected CCTV cameras across your facility at the same time.',
+    },
+    {
+      title: 'Handles All the Manual Hassle',
+      detail: 'Automatically logs violations, pairs photo proof with worker Face ID, and builds safety reports.',
+    },
+  ],
+  workflowSteps: [
+    {
+      step: '01',
+      title: 'Connects',
+      detail: 'Connects directly to your existing CCTV and ONVIF IP cameras with zero hardware replacement.',
+    },
+    {
+      step: '02',
+      title: 'Checks Live 24/7',
+      detail: 'Inspects live camera feeds continuously across every shift for PPE, fire, zone, and vehicle hazards.',
+    },
+    {
+      step: '03',
+      title: 'Sends Alerts',
+      detail: 'Dispatches instant control room, Email, WhatsApp, and machine PLC triggers the moment a violation occurs.',
+    },
+    {
+      step: '04',
+      title: 'Full Reports',
+      detail: 'Delivers clear safety compliance dashboards, event verification logs, and root-cause reports in one hub.',
+    },
+  ],
+  differentiators: [
+    {
+      index: '01',
+      title: 'Specialized',
+      detail: 'Built specifically for industrial QHSE workflows and high-risk site safety rules.',
+    },
+    {
+      index: '02',
+      title: 'Comprehensive',
+      detail: 'Complete industrial safety library with 14+ dedicated QHSE modules and 18+ safety checks.',
+    },
+    {
+      index: '03',
+      title: 'Most Accurate',
+      detail: 'High-precision computer vision tuned specifically for harsh industrial lighting, dust, and site conditions.',
+    },
+    {
+      index: '04',
+      title: 'Hardware Efficient',
+      detail: 'Runs more simultaneous safety checks per server, lowering GPU and infrastructure costs.',
+    },
+    {
+      index: '05',
+      title: '100% Secure (On-Site)',
+      detail: 'Installed locally on your site servers so sensitive camera footage never leaves your plant.',
+    },
+  ],
+  suites: [
+    {
+      id: 'worker-safety',
+      title: 'Worker Safety & Personal Gear',
+      subtitle: 'Automated PPE, uniform, ergonomics & habit compliance',
+      items: [
+        {
+          name: 'PPE Detection',
+          detail: 'Checks hard hats, safety vests, gloves, goggles, and safety boots in real time.',
+        },
+        {
+          name: 'Uniform Detection',
+          detail: 'Verifies workers are wearing approved site coveralls inside designated plant areas.',
+        },
+        {
+          name: 'Fall Detection ("Man Down")',
+          detail: 'Spots slips, trips, and collapsed workers immediately so medical help arrives faster.',
+        },
+        {
+          name: 'Mobile, Seat Belt & Face ID',
+          detail: 'Detects phone distraction, safety belt compliance, and matches worker identity.',
+        },
+        {
+          name: 'Smoking & CO Detection',
+          detail: 'Spots smoking in restricted plant zones and dangerous carbon monoxide hazards.',
+        },
+      ],
+    },
+    {
+      id: 'critical-hazards',
+      title: 'Critical Hazard Suite',
+      subtitle: 'Early fire, smoke, thermal hotspots & hazardous vapors',
+      items: [
+        {
+          name: 'Fire, Smoke & Thermal Cameras',
+          detail: 'Early flame and smoke plume alerts plus continuous heat tracking on thermal cameras.',
+        },
+        {
+          name: 'Dangerous Gas & Vapor Alerts',
+          detail: 'Continuous visual and sensor-linked alerts for hazardous gas or vapor emissions.',
+        },
+        {
+          name: 'RDF & Kiln Hotspot Prevention',
+          detail: 'Flags abnormal thermal spikes—such as 153.8°C RDF fuel pile hotspots—before open ignition.',
+        },
+        {
+          name: 'Worker ID Verification',
+          detail: 'Pairs incident scene snapshots with employee or contractor directory profiles for rapid follow-up.',
+        },
+      ],
+    },
+    {
+      id: 'perimeter-loads',
+      title: 'Perimeter, Zones, Cranes & Forklifts',
+      subtitle: 'Geofenced red zones, hanging loads & warehouse vehicle rules',
+      items: [
+        {
+          name: 'Restricted Zones & Hanging Loads',
+          detail: 'Time and headcount triggers in red zones plus alerts for workers standing under overhead crane loads.',
+        },
+        {
+          name: 'Forklift Safety Module',
+          detail: 'Monitors forklift speed, safe distance from walking staff, and warehouse aisle rules.',
+        },
+        {
+          name: 'Trespassing & Perimeter Protection',
+          detail: 'Guards site fences and boundary walls against unauthorized entry day or night.',
+        },
+        {
+          name: 'Camera Tampering & Blockage',
+          detail: 'Instant alerts for camera obstruction, lens blockage, or offline feed health issues.',
+        },
+      ],
+    },
+    {
+      id: 'alerts-reporting',
+      title: 'Personnel, Alerts & Reporting',
+      subtitle: 'Workstation staffing, PLC triggers & executive oversight',
+      items: [
+        {
+          name: 'Personnel Monitoring',
+          detail: 'Tracks worker presence, workstation attendance, and safe staffing levels per shift.',
+        },
+        {
+          name: 'Email, WhatsApp & Machine PLC Triggers',
+          detail: 'Instant alert workflows to safety officers, WhatsApp groups, or automated equipment interlocks.',
+        },
+        {
+          name: 'Material Counting & Inventory Checks',
+          detail: 'Automated camera-based counting for production output and yard inventory verification.',
+        },
+        {
+          name: '100% Local On-Site Installation',
+          detail: 'Full edge/on-prem deployment keeping video streams inside your plant network.',
+        },
+      ],
+    },
+  ],
+  standards: [
+    {
+      code: 'PPE & OSH',
+      title: 'PPE & OSH Compliance',
+      detail: 'Automated Personal Protective Equipment checks enforcing Occupational Safety standards across every shift.',
+    },
+    {
+      code: 'PTW · LOTO · COSHH',
+      title: 'PTW, LOTO & COSHH',
+      detail: 'Monitors Permit to Work zones, Lockout Tagout boundaries, and hazardous COSHH storage areas.',
+    },
+    {
+      code: 'JSA · JHA · ALARP',
+      title: 'JSA, JHA, HAZID & ALARP',
+      detail: 'Proactive Hazard Identification engineered to keep operational site risks at ALARP levels.',
+    },
+    {
+      code: 'LTIFR · TRIR · CAPA',
+      title: 'KPI, LTIFR, TRIR & RCA',
+      detail: 'Lowers injury rates (LTIFR/TRIR) through Proactive, Active & Predictive HSE KPIs with visual Root Cause Analysis & CAPA.',
+    },
+  ],
+  controlRoomCapabilities: [
+    {
+      title: 'HSE Overview & Trend Dashboards',
+      detail: 'Tracks violation breakdowns by AI model, online/offline camera health, reviewed vs. pending events, 24-hour alert timelines, top cameras, and high-risk zones & departments.',
+    },
+    {
+      title: 'Events Module & Quick Verification',
+      detail: 'Filter incidents by site, AI model, assignee, or review status; merge, export, validate, and mark detections as correct or false directly in the queue.',
+    },
+    {
+      title: 'Worker Face Recognition & Employees Directory',
+      detail: 'Pairs cropped scene evidence with employee/contractor database matches (confidence score & staff ID) and assigns incidents directly to safety officers.',
+    },
+  ],
+  liveSiteProofs: [
+    {
+      location: 'Packer M-C 4 · Cement Packing Line',
+      title: 'PPE Detection in Dusty Cement Environment',
+      metric: '24/7 Live',
+      detail: 'Detects missing hard hats and vests accurately even under heavy airborne cement dust on active packing lines.',
+    },
+    {
+      location: 'Suez-Th3-Thermal · RDF Storage',
+      title: 'Thermal Camera RDF Fuel Pile Heat Monitoring',
+      metric: '153.8°C vs 16.6°C',
+      detail: 'Identified a 153.8°C peak hotspot in an RDF storage pile against a 16.6°C ambient baseline before open ignition occurred.',
+    },
+    {
+      location: 'Workshop, Pump Hall & Open Yard',
+      title: 'Early Fire, Smoke Plume & PPE + Face ID',
+      metric: 'Instant Alert',
+      detail: 'Flags open-yard flames, indoor smoke plumes near heavy pumps and machinery, and links live PPE violations to named worker records.',
+    },
+    {
+      location: 'Boiler Area & Perimeter Wall BR2',
+      title: 'Restricted Zone & Perimeter Trespassing Geofencing',
+      metric: 'Zero Blind Spots',
+      detail: 'Triggers digital boundary alerts when personnel enter restricted boiler danger zones or cross outer site perimeter walls.',
+    },
+  ],
+};
+
+export interface SmartAttendanceComparisonRow {
+  point: string;
+  inHouse: string;
+  cloud: string;
+}
+
+export const SMART_ATTENDANCE_DATA = {
+  eyebrow: 'Smart Workplace Solution · Executive HR Proposal',
+  title: 'Smart Employee Attendance & HR Reporting',
+  tagline: '100% In-House & Private · Zero Monthly Subscription Fees · Uses Existing Security Cameras',
+  summary:
+    'Save HR time, ensure accurate payroll, and track staff attendance across all branches automatically—replacing fingerprint punch machines with photo-verified camera attendance kept strictly on private company servers.',
+  savingsMetrics: [
+    { value: '100%', label: 'Real Attendance Proof', detail: 'Stops colleague sign-ins and proxy punching completely.' },
+    { value: '80%', label: 'Less Paperwork Time', detail: 'Automatic daily work hour totals and instant shift summaries.' },
+    { value: '$0', label: 'Monthly Software Fees', detail: 'One-time lifetime purchase with no per-employee monthly charges.' },
+  ],
+  challengesReplaced: [
+    { title: 'Colleague Sign-Ins', detail: 'Eliminates staff clocking in on fingerprint devices for absent colleagues.' },
+    { title: 'Manual Time Checks', detail: 'Removes hours wasted resolving attendance and overtime disputes.' },
+    { title: 'Hidden Branch Activity', detail: 'Gives HR live visibility into remote store and showroom staffing.' },
+  ],
+  hrCapabilities: [
+    {
+      title: 'All Locations on One Screen',
+      detail: 'View multiple branches (such as Dokki, Port Said, and Mall of Arabia) together with live camera health alerts and 60-second sync.',
+    },
+    {
+      title: 'Visual Daily Work Timeline & Split Time',
+      detail: 'Combines separate visits automatically (e.g., 20m + 30m = 50m) across 08:00 AM–02:00 AM late shifts and ignores door-walk duplicates.',
+    },
+    {
+      title: 'Ready Payroll Files & Quick Photo Check',
+      detail: 'Exports 5 one-click payroll formats, calculates daily FTE shift shares, and lets HR verify any entry with staff photo proof.',
+    },
+    {
+      title: '100% Company-Owned Privacy & Roles',
+      detail: 'All employee photos and immutable labor-inspection records stay on private company servers with branch-level manager permissions.',
+    },
+  ],
+  setupSteps: [
+    { step: '01', title: 'Camera Check', detail: 'Review existing entrance and door camera angles with zero store disruption.' },
+    { step: '02', title: 'Add Staff List', detail: 'Upload employee names, roles, and reference photos into the private roster.' },
+    { step: '03', title: 'Live Testing', detail: 'Confirm accurate face-matched sign-ins and similarity thresholds.' },
+    { step: '04', title: 'Auto Reports', detail: 'Receive daily automated payroll sheets and branch attendance summaries.' },
+  ],
+  comparison: [
+    {
+      point: 'Payment Model',
+      inHouse: 'One-time lifetime purchase',
+      cloud: 'Monthly fee for every employee',
+    },
+    {
+      point: 'Employee Photos & Data',
+      inHouse: 'Kept safely inside company servers',
+      cloud: 'Uploaded to external cloud servers',
+    },
+    {
+      point: 'Adding New Branches',
+      inHouse: 'Covers any new branches easily',
+      cloud: 'Extra charges for every new location',
+    },
+    {
+      point: 'Equipment Needed',
+      inHouse: 'Works on standard computers & cameras',
+      cloud: 'Requires expensive brand-locked devices',
+    },
+  ] as SmartAttendanceComparisonRow[],
+};
+
+export const RETAIL_COMMAND_DATA = {
+  eyebrow: 'Virtual Manager Platform · Multi-Branch Retail AI',
+  title: 'Retail Command & Virtual Manager',
+  tagline: 'Real-time visibility, true conversion, and AI oversight across 10 to 50+ store branches',
+  summary:
+    'Unifies dual-camera computer vision attendance with direct Point of Sale (POS) synchronization—subtracting on-duty staff from raw footfall to reveal true shopper conversion, Average Order Value (AOV), and executive branch actions.',
+  blindSpotsSolved: [
+    {
+      index: '01',
+      title: 'Footfall Contamination',
+      detail: 'Stops employee entries, exits, and shift movement from inflating potential customer traffic counts.',
+    },
+    {
+      index: '02',
+      title: 'Demographic Disconnect',
+      detail: 'Connects real-time visitor demographics (age, gender, repeat traffic) directly to final POS receipts.',
+    },
+    {
+      index: '03',
+      title: 'Conversion Blindness',
+      detail: 'Delivers real-time store-level conversion rates so shift performance and campaign efficacy are measurable.',
+    },
+  ],
+  architecturePillars: [
+    {
+      index: '01',
+      title: 'Dual-Camera HR & In-Store Attendance',
+      subtitle: 'Dedicated entrance & exit dual cameras',
+      detail: 'Real-time employee detection, automated attendance logging, and a continuous headcount of on-duty staff inside each store.',
+    },
+    {
+      index: '02',
+      title: 'True Customer Footfall Extraction',
+      subtitle: 'Algorithmic subtraction engine',
+      detail: 'Active staff are filtered out of total ingress and egress, giving clean metrics on unique visitors, gender split, and repeat visits.',
+    },
+    {
+      index: '03',
+      title: 'POS System Integration',
+      subtitle: 'Direct synchronization layer',
+      detail: 'Live tracking of invoices issued, units sold, average item price, Average Order Value (AOV), and Units Per Transaction (UPT).',
+    },
+  ],
+  conversionFormula: 'True Conversion Rate = Total Invoices Issued ÷ (Total Footfall − On-Duty Staff Entries)',
+  virtualManagerCapabilities: [
+    {
+      index: '01',
+      title: 'Consolidated Multi-Store Dashboard',
+      detail: 'Centralized real-time view of gross revenue, purified foot traffic, active staff ratios, and operational bottlenecks across every location.',
+    },
+    {
+      index: '02',
+      title: 'Intelligent Insights & Recommendations',
+      detail: 'Automated anomaly alerts—such as high traffic with low conversion or peak-hour staff shortages—plus daily prescriptive actions for managers.',
+    },
+    {
+      index: '03',
+      title: 'Performance Benchmarking',
+      detail: 'Cross-branch comparison of conversion efficiency, basket metrics, and shift productivity across identical operating windows.',
+    },
+  ],
+  businessImpact: [
+    { index: '01', title: 'Conversion Optimization', detail: 'Identifies underperforming shifts for targeted sales training, staff re-allocation, and optimized floor coverage.' },
+    { index: '02', title: 'Workforce Optimization', detail: 'Eliminates time fraud and proxy punching while aligning rosters with historical and predicted traffic surges.' },
+    { index: '03', title: 'Basket Size Expansion', detail: 'Cross-references live promotions against visitor demographics to maximize Average Order Value (AOV).' },
+    { index: '04', title: 'Bottom-Line Value Creation', detail: 'Delivers immediate ROI by reducing labor wastage, stopping leakage, and raising net conversion yield per branch.' },
+  ],
+};
+
 export const ECOSYSTEM_SERVICES: EcosystemService[] = [
   {
     id: 'carrot-vision',
     index: '01',
     category: 'Industrial HSE & Video AI',
     name: 'Carrot Vision AI',
-    partner: 'QHSE Operating System',
-    headline: 'Computer vision HSE AI & video analytics monitoring legacy CCTV & AI cameras 24/7',
+    partner: 'The Automated QHSE Engineer · 100% On-Site',
+    headline: 'The leading QHSE management system based on CCTV cameras—monitoring 24/7 with 18+ safety checks',
     summary:
-      'A state-of-the-art AI video and computer vision QHSE platform trusted by Orascom, Heidelberg Materials, Arabian Cement, and Powerhouse—delivering PPE detection, fire and smoke alarms, overhead crane monitoring, and restricted zone trespassing protection.',
+      'Trusted by Heidelberg Materials, Orascom CPD, Arabian Cement, and Powerhouse. Connects to existing CCTV and runs 100% locally on-site—pairing PPE, fall, forklift, fire/smoke, thermal, and crane-zone detections with worker Face ID and visual RCA/CAPA reporting.',
     highlights: [
-      'Worker Safety & AI Attendance — real-time PPE detection (helmet, vest, gloves), fall detection, phone distraction, and face recognition attendance',
-      'Critical Hazard Suite — early fire and smoke detection, thermal heat tracking, smoking alerts, and dangerous gas/vapor warnings',
-      'Perimeter, Restricted Zone & Crane Safety — overhead crane geofencing, trespassing alarms, restricted zone rules, and camera sabotage detection',
-      'Enterprise Analytics — live HSE dashboard alerts, Email, WhatsApp & PLC triggers, AI counting & inventory, and zero-latency workflows',
+      'Worker Safety & Habits — PPE (hard hats, vests, gloves, goggles, boots), approved coveralls, fall detection ("Man Down"), phone distraction, seat belt, smoking & CO',
+      'Critical Hazards & Thermal — early flame and smoke plume alerts, gas/vapor warnings, and thermal hotspot tracking (e.g., 153.8°C RDF pile detection before ignition)',
+      'Zones, Cranes & Forklifts — restricted zone headcount/time rules, workers under hanging crane loads, forklift speed/aisle safety, perimeter trespassing & camera sabotage',
+      '100% On-Site Control & Standards — local plant servers (footage never leaves site), Face ID violator matching, Email/WhatsApp/PLC triggers, supporting PTW, LOTO, COSHH & ALARP KPIs',
     ],
     metrics: [
-      { value: '18+', label: 'Custom QHSE AI modules' },
-      { value: '24/7', label: 'Zero-latency alert triggers' },
+      { value: '18+', label: 'QHSE checks (14+ modules)' },
+      { value: '100%', label: 'On-site server security' },
     ],
     vendorLogos: [{ src: '/assets/partners/carrot-vision.png', alt: 'Carrot Vision AI logo' }],
+    image: {
+      src: '/src/assets/images/solution_carrot_vision_1794865969929.jpg',
+      alt: 'Carrot Vision QHSE computer vision monitoring PPE compliance and overhead crane safety inside an industrial plant',
+    },
   },
   {
     id: 'eocortex',
@@ -156,6 +577,10 @@ export const ECOSYSTEM_SERVICES: EcosystemService[] = [
       { value: '98%+', label: 'On-time delivery target' },
     ],
     vendorLogos: [{ src: '/assets/partners/makkook.png', alt: 'Makkook logo' }],
+    image: {
+      src: '/src/assets/images/solution_makkook_dios_1794865969666.jpg',
+      alt: 'Makkook DIOS optimization across logistics truck bays, warehouse inventory, and automated production conveyors',
+    },
   },
   {
     id: 'aipix',
@@ -226,6 +651,51 @@ export const ECOSYSTEM_SERVICES: EcosystemService[] = [
       { src: '/assets/partners/augnito.png', alt: 'Augnito logo' },
       { src: '/assets/partners/tsplus.png', alt: 'TSPlus logo' },
     ],
+    image: {
+      src: '/src/assets/images/solution_gsd_docai_1794865969909.jpg',
+      alt: 'GSD-DocAi high-speed document scanning, neural OCR indexing, and digital approval workflows in an enterprise office',
+    },
+  },
+  {
+    id: 'gsd-ai-attendance',
+    index: '07',
+    category: 'Smart Workplace & HR AI',
+    name: 'Smart Employee Attendance & HR Reporting',
+    partner: '100% In-House & Private · $0 Monthly Fees',
+    headline: 'Automatic multi-branch staff attendance and payroll reporting on existing security cameras',
+    summary:
+      'Replaces fingerprint punch machines with photo-verified attendance across every branch on one screen—running 100% on private company servers with zero monthly software fees and 5 one-click payroll report formats.',
+    highlights: [
+      'Stops Colleague Sign-Ins — 100% photo-verified attendance proof eliminating proxy punching and manual time disputes',
+      'Split-Visit & Late-Shift Math — combines separate entries (20m + 30m = 50m), supports shifts past midnight, and ignores door-walk duplicates',
+      'Multi-Branch Live HR Screen — 60-second camera sync, live branch headcounts, peak rush-hour charts, and camera health alerts',
+      'In-House Privacy & Payroll — 5 one-click payroll exports, role-based branch permissions, and immutable records kept strictly inside your servers',
+    ],
+    metrics: [
+      { value: '100%', label: 'Real attendance proof' },
+      { value: '80%', label: 'Less paperwork time' },
+      { value: '$0', label: 'Monthly software fees' },
+    ],
+  },
+  {
+    id: 'retail-command',
+    index: '08',
+    category: 'Retail AI & Virtual Manager',
+    name: 'Retail Command & Virtual Manager',
+    partner: 'Dual-Camera HR + POS Sync · 10–50+ Branches',
+    headline: 'Real-time store visibility, staff-subtracted true conversion, and AI oversight across every branch',
+    summary:
+      'Pairs dedicated entrance/exit computer vision cameras with live POS synchronization—filtering active staff out of footfall to deliver True Conversion Rate, AOV, UPT, and automated Virtual Manager recommendations.',
+    highlights: [
+      'Dual-Camera HR & Attendance — automated entrance/exit staff detection and continuous headcount of on-duty employees in-store',
+      'True Customer Footfall — algorithmic subtraction removes on-duty staff entries for clean unique visitors, gender split, and repeat traffic',
+      'Live POS Synchronization — tracks invoices issued, units sold, average item price, Average Order Value (AOV), and Units Per Transaction (UPT)',
+      'Virtual Manager Command — multi-store dashboard, high-traffic/low-conversion anomaly alerts, prescriptive supervisor actions & branch benchmarking',
+    ],
+    metrics: [
+      { value: 'True CR', label: 'Invoices ÷ (Footfall − Staff)' },
+      { value: '10–50+', label: 'Multi-branch retail scale' },
+    ],
   },
 ];
 
@@ -233,20 +703,20 @@ export const VERTICAL_SOLUTIONS: VerticalSolution[] = [
   {
     id: 'industrial',
     name: 'Industrial & Manufacturing',
-    tagline: 'HSE AI, PPE detection, overhead crane safety, fire & smoke, and restricted zones',
+    tagline: 'Carrot Vision QHSE AI: PPE, coveralls, fall detection, forklifts, cranes & thermal monitoring',
     summary:
-      'Keep personnel, overhead cranes, heavy machinery, and inventory protected across cement plants, factories, and workshops by turning existing CCTV into real-time computer vision safety cameras.',
+      'Turn existing CCTV into a 24/7 automated QHSE engineer—running 100% on-site to protect workers, overhead cranes, forklifts, boiler zones, and RDF fuel piles while supporting PTW, LOTO, COSHH, and ALARP safety KPIs.',
     challenges: [
-      'PPE detection gaps and unsafe worker behavior (smoking, phone distraction, missing hard hats)',
-      'Forklift near-misses and overcrowding beneath active overhead crane loads',
-      'Restricted zone breaches, perimeter trespassing, and AI camera tampering',
-      'Early fire and smoke hazards, overheating kilns, and untracked production counting',
+      'Overloaded QHSE teams managing manual inspections, dusty packing lines, and slow incident reporting',
+      'PPE & coverall gaps, phone distraction, smoking, CO/gas risks, and worker falls ("Man Down")',
+      'Forklift aisle speed hazards, workers under hanging crane loads, and boiler red-zone breaches',
+      'Early fire/smoke hazards, 153.8°C RDF thermal hotspots, perimeter trespassing, and camera tampering',
     ],
     modules: [
-      { title: 'PPE Detection & Safety', detail: 'Real-time computer vision checks for helmets, high-vis vests, gloves, and boots.' },
-      { title: 'Overhead Crane & Restricted Zones', detail: 'Flags overcrowding under overhead cranes and alerts on trespassing into restricted zones.' },
-      { title: 'Fire, Smoke & Thermal AI', detail: 'Spark-tuned fire and smoke detection plus thermal overheating alerts for kilns and panels.' },
-      { title: 'AI Attendance & PLC Alerts', detail: 'Face recognition attendance verification plus instant Email, WhatsApp, and PLC triggers.' },
+      { title: 'PPE, Uniform & Habit Detection', detail: 'Real-time checks for hard hats, vests, gloves, goggles, boots, site coveralls, smoking, phone use, and seat belts.' },
+      { title: 'Fall, Forklift & Crane Safety', detail: 'Man-Down collapse alerts, forklift speed/distance monitoring, hanging crane load rules, and red-zone triggers.' },
+      { title: 'Fire, Smoke, Gas & Thermal AI', detail: 'Early flame and smoke plume alerts, gas/vapor warnings, and thermal RDF/kiln hotspot tracking before ignition.' },
+      { title: 'Face ID Evidence & On-Site Control', detail: '100% on-site servers pairing violation snapshots with worker Face ID, RCA/CAPA logs, Email, WhatsApp & PLC triggers.' },
     ],
   },
   {
@@ -407,29 +877,29 @@ export const SUCCESS_STORIES: SuccessStory[] = [
     id: 'cement-group',
     sector: 'Cement & Heavy Industry',
     location: 'Kattameya, Suez & Helwan · Egypt',
-    title: 'Plant-wide AI safety & thermal kiln monitoring across three cement factories',
+    title: 'Plant-wide QHSE AI, dusty packing line PPE & RDF thermal monitoring across three cement factories',
     challenge:
-      'Rolled out across three high-heat cement facilities operated by Heidelberg Materials in Egypt—requiring 24/7 oversight of heavy machinery, restricted zones, and kilns.',
+      'Rolled out across three high-heat cement facilities operated by Heidelberg Materials in Egypt—requiring 24/7 oversight of dusty packing lines (Packer M-C 4), RDF fuel storage piles, restricted zones, and kilns.',
     solutionPoints: [
-      'Helmet and high-visibility vest compliance across active production zones',
-      'Thermal camera integration detecting abnormal kiln and equipment temperatures',
-      'Restricted zone alerts, early fire/smoke detection, and material segment counting',
+      'PPE helmet and vest verification on dusty cement packing lines (Packer M-C 4) with zero camera replacement',
+      'Thermal camera RDF fuel pile monitoring (Suez-Th3-Thermal) catching 153.8°C hotspots vs. 16.6°C ambient baseline before ignition',
+      'Restricted zone boundary alerts, early fire/smoke plume detection, and material segment counting on local on-site servers',
     ],
-    outcome: 'Unified multi-site AI backbone delivering group-level HSE visibility across all three plants.',
+    outcome: 'Unified 100% on-site QHSE AI backbone delivering group-level HSE KPIs and RCA visibility across all three plants.',
   },
   {
     id: 'heavy-manufacturing',
     sector: 'Heavy Manufacturing',
-    location: 'Plant Floor · Egypt',
-    title: 'Overhead crane zone safety & generator fire prevention on existing CCTV',
+    location: 'Plant Floor, Boiler & Pump Hall · Egypt',
+    title: 'Overhead crane, boiler red-zone, fire/smoke & Face ID violation tracking on existing CCTV',
     challenge:
-      'Overhead cranes moving heavy loads above workers alongside fuel and generator rooms where manual safety patrols could not cover every shift continuously.',
+      'Overhead cranes moving heavy loads above workers alongside boiler areas, pump halls, and maintenance workshops where manual patrols could not ensure continuous 24/7 compliance.',
     solutionPoints: [
-      'Overhead crane zone monitoring flagging overcrowding and restricted-zone entry in motion',
-      'Cigarette detection in fuel/generator areas tuned to ignore eating or phone look-alikes',
-      'PPE violations, perimeter trespassing, and face-linked coaching follow-ups',
+      'Hanging crane load alerts, boiler area digital boundary geofencing, and Camera BR2 perimeter trespassing protection',
+      'Early fire and smoke plume detection across open work yards, pump & motor halls, and maintenance workshops',
+      'PPE violation alerts paired with worker Face ID matching and Events Module assignment to safety officers',
     ],
-    outcome: 'Shifted safety operations from reactive patrols to real-time automated hazard alerts with zero camera replacement.',
+    outcome: 'Shifted safety operations from reactive manual checks to automated evidence-backed LTIFR/TRIR reduction.',
   },
   {
     id: 'gas-fleet',
@@ -464,8 +934,8 @@ export const SUCCESS_STORIES: SuccessStory[] = [
 export const PARTNERS: PartnerItem[] = [
   {
     name: 'Carrot Vision',
-    domain: 'Industrial QHSE AI',
-    summary: '18+ edge-native computer vision modules for PPE compliance, fire/smoke, thermal analytics, and spatial geofencing.',
+    domain: 'Industrial QHSE AI · 100% On-Site',
+    summary: 'The leading CCTV-based QHSE management system with 14+ modules and 18+ safety checks for PPE, coveralls, falls, forklifts, fire/smoke, thermal hotspots, and PTW/LOTO compliance.',
     logoSrc: '/assets/partners/carrot-vision.png',
   },
   {

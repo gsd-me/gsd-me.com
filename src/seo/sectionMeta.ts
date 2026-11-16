@@ -39,11 +39,11 @@ export const SECTION_SEO_LIST: SectionSeoConfig[] = [
   {
     id: 'ecosystem',
     slug: '/gsd-services-ecosystem',
-    title: 'AI Video, Computer Vision & Document Management | GSD',
+    title: 'AI Video, Attendance & Retail Virtual Manager | GSD',
     description:
-      'Deploy Carrot Vision HSE AI, Eocortex computer vision, Makkook DIOS, Aipix cloud video, Howen AI driver cameras, and GSD-DocAi document management.',
+      'Deploy Carrot Vision QHSE AI, Eocortex, Makkook DIOS, Aipix, DMS/ADAS, GSD-DocAi, Smart Employee Attendance & HR Reporting, and Retail Command Virtual Manager.',
     keywords:
-      'AI video analytics, computer vision platform, Carrot Vision AI, Eocortex VMS, Makkook DIOS, Aipix VSaaS, GSD-DocAi document management, AI driver camera, Howen DMS ADAS, AI cameras Egypt',
+      'AI video analytics, Carrot Vision AI, Smart Employee Attendance, HR reporting, Retail Command Virtual Manager, true conversion rate, Eocortex VMS, Makkook DIOS, Aipix VSaaS, GSD-DocAi, AI driver camera',
     ogImage: '/src/assets/images/ecosystem_industrial_ai_1794852240167.jpg',
     ogImageAlt: 'Industrial computer vision and AI cameras monitoring overhead cranes and PPE',
     changefreq: 'weekly',
@@ -54,9 +54,9 @@ export const SECTION_SEO_LIST: SectionSeoConfig[] = [
     slug: '/our-solutions',
     title: 'HSE AI, PPE Detection & Retail AI Store Solutions | GSD',
     description:
-      'Computer vision solutions for PPE detection, fire & smoke, restricted zones, overhead cranes, trespassing, AI store virtual retail manager, AI counting & attendance.',
+      'Computer vision solutions for PPE & coverall detection, fall & forklift safety, fire & smoke, thermal RDF monitoring, restricted zones, overhead cranes & retail AI.',
     keywords:
-      'PPE detection, fire and smoke, restricted zone monitoring, overhead crane safety, trespassing alerts, retail AI solutions, AI store, virtual retail manager, AI attendance, AI counting, face recognition, industrial safety AI',
+      'PPE detection, coverall detection, fall detection man down, forklift safety AI, fire and smoke, thermal monitoring, PTW LOTO COSHH, restricted zone monitoring, overhead crane safety, trespassing alerts, retail AI solutions, AI store, virtual retail manager',
     ogImage: '/src/assets/images/solutions_smart_facility_1794852240500.jpg',
     ogImageAlt: 'AI cameras running face recognition, AI counting, and facility safety monitoring',
     changefreq: 'weekly',

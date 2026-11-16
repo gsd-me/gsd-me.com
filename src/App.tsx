@@ -14,12 +14,15 @@ import {
   X,
 } from 'lucide-react';
 import {
+  CARROT_VISION_DATA,
   COMPANY_INFO,
   CUSTOMERS,
   ECOSYSTEM_SERVICES,
   HERO_METRICS,
   PARTNERS,
+  RETAIL_COMMAND_DATA,
   SECTION_IMAGES,
+  SMART_ATTENDANCE_DATA,
   SUCCESS_STORIES,
   VERTICAL_SOLUTIONS,
 } from './data/gsdContent';
@@ -123,6 +126,18 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeVerticalId, setActiveVerticalId] = useState(VERTICAL_SOLUTIONS[0].id);
   const [selectedStoryId, setSelectedStoryId] = useState(SUCCESS_STORIES[0].id);
+  const [activeDeepDive, setActiveDeepDive] = useState<
+    'carrot-vision' | 'gsd-ai-attendance' | 'retail-command'
+  >('carrot-vision');
+  const [carrotTab, setCarrotTab] = useState<'architecture' | 'modules' | 'standards' | 'proof'>(
+    'architecture',
+  );
+  const [attendanceTab, setAttendanceTab] = useState<'overview' | 'hr-tools' | 'comparison'>(
+    'overview',
+  );
+  const [retailTab, setRetailTab] = useState<'architecture' | 'virtual-manager' | 'roi'>(
+    'architecture',
+  );
   const [logoFailed, setLogoFailed] = useState(false);
 
   const [form, setForm] = useState<DemoFormState>(INITIAL_FORM);
@@ -588,9 +603,21 @@ export default function App() {
             </div>
           </motion.div>
 
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:mt-10 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-6 sm:mt-10 lg:grid-cols-6">
             {ECOSYSTEM_SERVICES.map((service, index) => {
-              const isWide = index === 0 || index === 2 || index === 5;
+              const isFourCol = index === 0 || index === 2 || index === 5;
+              const isThreeCol = index === 6 || index === 7;
+              const isWide = isFourCol || isThreeCol;
+              const spanClass = isFourCol
+                ? 'lg:col-span-4'
+                : isThreeCol
+                  ? 'lg:col-span-3'
+                  : 'lg:col-span-2';
+              const hasDeepDive =
+                service.id === 'carrot-vision' ||
+                service.id === 'gsd-ai-attendance' ||
+                service.id === 'retail-command';
+
               return (
                 <motion.article
                   key={service.id}
@@ -602,82 +629,766 @@ export default function App() {
                     delay: (index % 2) * 0.08,
                     ease: EASE_OUT,
                   }}
-                  className={`flex min-w-0 flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 transition-colors duration-150 hover:border-[#0B34D6]/40 sm:p-8 ${
-                    isWide ? 'lg:col-span-2' : 'lg:col-span-1'
-                  }`}
+                  className={`flex min-w-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white transition-colors duration-150 hover:border-[#0B34D6]/40 ${spanClass}`}
                 >
-                  <div>
-                    <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium text-[#0B34D6]">
-                          {service.index}. {service.category}
-                        </span>
-                        <span aria-hidden="true">·</span>
-                        <span>{service.partner}</span>
-                      </div>
-                      {service.vendorLogos && service.vendorLogos.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-3 py-1">
-                          {service.vendorLogos.map((logo) => (
-                            <VendorLogo
-                              key={logo.src}
-                              src={logo.src}
-                              alt={logo.alt}
-                              name={service.name}
-                              className="h-5 w-auto max-w-[96px] object-contain"
-                            />
-                          ))}
-                        </div>
-                      )}
+                  {service.image && (
+                    <div className="relative aspect-[16/8] w-full overflow-hidden border-b border-slate-200 bg-slate-100">
+                      <ResilientImage
+                        src={service.image.src}
+                        alt={service.image.alt}
+                        fallbackTitle={service.name}
+                        className="h-full w-full object-cover object-center"
+                      />
                     </div>
+                  )}
 
-                    <h3 className="mt-4 font-display text-xl font-bold tracking-tight text-[#040B29] sm:text-2xl">
-                      {service.name}
-                    </h3>
-                    <p className="mt-1 text-sm font-medium text-slate-800">{service.headline}</p>
-                    <p className="mt-3 text-sm leading-relaxed text-slate-600">{service.summary}</p>
-
-                    <ul
-                      className={`mt-6 grid gap-2.5 border-t border-slate-100 pt-5 ${
-                        isWide ? 'sm:grid-cols-2' : 'grid-cols-1'
-                      }`}
-                    >
-                      {service.highlights.map((item) => (
-                        <li
-                          key={item}
-                          className="flex items-start gap-2.5 text-sm leading-snug text-slate-700"
-                        >
-                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0B34D6]" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-5">
-                    <div className="flex flex-wrap items-center gap-6">
-                      {service.metrics.map((m) => (
-                        <div key={m.label}>
-                          <div className="font-mono text-base font-semibold text-[#040B29]">
-                            {m.value}
+                  <div className="flex flex-1 flex-col justify-between p-5 sm:p-8">
+                    <div>
+                      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-medium text-[#0B34D6]">
+                            {service.index}. {service.category}
+                          </span>
+                          <span aria-hidden="true">·</span>
+                          <span>{service.partner}</span>
+                        </div>
+                        {service.vendorLogos && service.vendorLogos.length > 0 && (
+                          <div className="flex flex-wrap items-center gap-3 py-1">
+                            {service.vendorLogos.map((logo) => (
+                              <VendorLogo
+                                key={logo.src}
+                                src={logo.src}
+                                alt={logo.alt}
+                                name={service.name}
+                                className="h-5 w-auto max-w-[96px] object-contain"
+                              />
+                            ))}
                           </div>
-                          <div className="text-xs text-slate-500">{m.label}</div>
-                        </div>
-                      ))}
+                        )}
+                      </div>
+
+                      <h3 className="mt-4 font-display text-xl font-bold tracking-tight text-[#040B29] sm:text-2xl">
+                        {service.name}
+                      </h3>
+                      <p className="mt-1 text-sm font-medium text-slate-800">{service.headline}</p>
+                      <p className="mt-3 text-sm leading-relaxed text-slate-600">{service.summary}</p>
+
+                      <ul
+                        className={`mt-6 grid gap-2.5 border-t border-slate-100 pt-5 ${
+                          isWide ? 'sm:grid-cols-2' : 'grid-cols-1'
+                        }`}
+                      >
+                        {service.highlights.map((item) => (
+                          <li
+                            key={item}
+                            className="flex items-start gap-2.5 text-sm leading-snug text-slate-700"
+                          >
+                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0B34D6]" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => handleRequestDemo(`${service.name} — ${service.category}`)}
-                      className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-slate-200 px-4 py-2 text-xs font-semibold text-[#040B29] whitespace-nowrap shrink-0 transition-colors hover:border-[#0B34D6] hover:bg-[#0B34D6] hover:text-white"
-                    >
-                      <span>Request Demo</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </button>
+                    <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-5">
+                      <div className="flex flex-wrap items-center gap-6">
+                        {service.metrics.map((m) => (
+                          <div key={m.label}>
+                            <div className="font-mono text-base font-semibold text-[#040B29]">
+                              {m.value}
+                            </div>
+                            <div className="text-xs text-slate-500">{m.label}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        {hasDeepDive && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveDeepDive(
+                                service.id as
+                                  | 'carrot-vision'
+                                  | 'gsd-ai-attendance'
+                                  | 'retail-command',
+                              );
+                              scrollToSection('carrot-vision-qhse');
+                            }}
+                            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-slate-200 px-3.5 py-2 text-xs font-medium text-slate-700 whitespace-nowrap shrink-0 transition-colors hover:border-[#0B34D6] hover:text-[#0B34D6]"
+                          >
+                            <span>
+                              {service.id === 'carrot-vision'
+                                ? 'QHSE Details'
+                                : service.id === 'gsd-ai-attendance'
+                                  ? 'HR & Setup Details'
+                                  : 'Virtual Manager Details'}
+                            </span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRequestDemo(`${service.name} — ${service.category}`)}
+                          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-slate-200 px-4 py-2 text-xs font-semibold text-[#040B29] whitespace-nowrap shrink-0 transition-colors hover:border-[#0B34D6] hover:bg-[#0B34D6] hover:text-white"
+                        >
+                          <span>Request Demo</span>
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </motion.article>
               );
             })}
           </div>
+
+          {/* Interactive Ecosystem Platform Deep-Dive (Carrot Vision, Smart Attendance & Retail Command) */}
+          <motion.div
+            id="carrot-vision-qhse"
+            initial={{opacity: 0, y: 20}}
+            whileInView={{opacity: 1, y: 0}}
+            viewport={VIEWPORT_ONCE}
+            transition={{duration: 0.45, ease: EASE_OUT}}
+            className="mt-10 overflow-hidden rounded-xl border border-slate-200 bg-white sm:mt-12"
+          >
+            {/* Top Platform Switcher Bar */}
+            <div
+              role="tablist"
+              aria-label="Select ecosystem solution specification"
+              className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-[#040B29] px-6 py-4 text-white sm:px-8"
+            >
+              <span className="text-xs font-medium text-[#BDE5F6]">
+                Solution Specifications &amp; Architecture
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {(
+                  [
+                    {id: 'carrot-vision', label: '01. Carrot Vision QHSE'},
+                    {id: 'gsd-ai-attendance', label: '07. Smart Employee Attendance'},
+                    {id: 'retail-command', label: '08. Retail Command & Virtual Manager'},
+                  ] as const
+                ).map((item) => {
+                  const selected = activeDeepDive === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      role="tab"
+                      type="button"
+                      aria-selected={selected}
+                      onClick={() => setActiveDeepDive(item.id)}
+                      className={`min-h-[40px] rounded-md px-3.5 py-2 text-xs font-medium whitespace-nowrap shrink-0 transition-colors duration-150 ${
+                        selected
+                          ? 'bg-white text-[#040B29]'
+                          : 'bg-white/10 text-slate-200 hover:bg-white/20 hover:text-white'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {activeDeepDive === 'carrot-vision' && (
+              <>
+                <div className="flex flex-col justify-between gap-6 border-b border-slate-200 p-6 sm:p-8 lg:flex-row lg:items-end">
+                  <div className="max-w-3xl">
+                    <div className="flex flex-wrap items-center gap-4">
+                      <VendorLogo
+                        src="/assets/partners/carrot-vision.png"
+                        alt="Carrot Vision QHSE logo"
+                        name="Carrot Vision"
+                        className="h-7 w-auto max-w-[130px] object-contain"
+                      />
+                      <span aria-hidden="true" className="text-slate-300">
+                        ·
+                      </span>
+                      <p className="text-xs font-medium text-[#0B34D6]">{CARROT_VISION_DATA.eyebrow}</p>
+                    </div>
+                    <h3 className="mt-4 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl [text-wrap:balance]">
+                      {CARROT_VISION_DATA.title}
+                    </h3>
+                    <p className="mt-2 text-sm font-medium text-slate-800">
+                      {CARROT_VISION_DATA.tagline}
+                    </p>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                      {CARROT_VISION_DATA.summary}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleRequestDemo('Carrot Vision AI — Industrial HSE & Video AI')}
+                      className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md bg-[#0B34D6] px-5 py-2.5 text-xs font-semibold text-white whitespace-nowrap shrink-0 transition-colors hover:bg-[#06249E]"
+                    >
+                      <span>Request Carrot Vision Demo</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Interactive Tab Selector */}
+                <div
+                  role="tablist"
+                  aria-label="Carrot Vision QHSE details"
+                  className="flex flex-wrap gap-2 border-b border-slate-200 bg-[#F8FAFC] px-6 py-3.5 sm:px-8"
+                >
+                  {(
+                    [
+                      {id: 'architecture', label: 'Workflow & Advantages'},
+                      {id: 'modules', label: '18+ Safety Modules'},
+                      {id: 'standards', label: 'Standards & HSE KPIs'},
+                      {id: 'proof', label: 'Control Room & Site Proof'},
+                    ] as const
+                  ).map((tab) => {
+                    const isSelected = carrotTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        role="tab"
+                        type="button"
+                        aria-selected={isSelected}
+                        onClick={() => setCarrotTab(tab.id)}
+                        className={`min-h-[40px] rounded-md px-3.5 py-2 text-xs font-medium whitespace-nowrap shrink-0 transition-colors duration-150 sm:text-sm ${
+                          isSelected
+                            ? 'bg-[#040B29] text-white'
+                            : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:text-[#040B29]'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+            <div className="p-6 sm:p-8">
+              {carrotTab === 'architecture' && (
+                <div className="space-y-8">
+                  {/* Automated QHSE Engineer Pillars */}
+                  <div className="grid grid-cols-1 gap-6 border-b border-slate-200 pb-8 md:grid-cols-3">
+                    {CARROT_VISION_DATA.automatedAssistantPillars.map((pillar, idx) => (
+                      <div key={pillar.title} className="min-w-0">
+                        <div className="font-mono text-xs font-medium text-[#0B34D6]">
+                          0{idx + 1} · Digital Safety Assistant
+                        </div>
+                        <h4 className="mt-1.5 font-display text-lg font-bold text-[#040B29]">
+                          {pillar.title}
+                        </h4>
+                        <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
+                          {pillar.detail}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* 4-Step Workflow */}
+                  <div>
+                    <h4 className="font-display text-base font-bold text-[#040B29]">
+                      Simple 4-Step Workflow on Existing Cameras
+                    </h4>
+                    <div className="mt-4 grid grid-cols-1 gap-6 border-b border-slate-200 pb-8 sm:grid-cols-2 lg:grid-cols-4">
+                      {CARROT_VISION_DATA.workflowSteps.map((step) => (
+                        <div key={step.step} className="min-w-0">
+                          <div className="font-mono text-sm font-semibold text-[#0B34D6]">
+                            {step.step}
+                          </div>
+                          <div className="mt-1 font-display text-base font-semibold text-[#040B29]">
+                            {step.title}
+                          </div>
+                          <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
+                            {step.detail}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 5 Core Differentiators */}
+                  <div>
+                    <h4 className="font-display text-base font-bold text-[#040B29]">
+                      Why HSE Leaders Choose Carrot Vision
+                    </h4>
+                    <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+                      {CARROT_VISION_DATA.differentiators.map((diff) => (
+                        <div key={diff.index} className="min-w-0">
+                          <div className="font-mono text-xs font-medium text-slate-500">
+                            {diff.index}
+                          </div>
+                          <div className="mt-1 font-display text-sm font-bold text-[#040B29]">
+                            {diff.title}
+                          </div>
+                          <p className="mt-1.5 text-xs leading-relaxed text-slate-600">
+                            {diff.detail}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {carrotTab === 'modules' && (
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                  {CARROT_VISION_DATA.suites.map((suite, suiteIdx) => (
+                    <div
+                      key={suite.id}
+                      className={`min-w-0 ${
+                        suiteIdx >= 2 ? 'border-t border-slate-200 pt-6' : ''
+                      } ${suiteIdx === 1 ? 'border-t border-slate-200 pt-6 md:border-t-0 md:pt-0' : ''}`}
+                    >
+                      <div className="font-mono text-xs font-medium text-[#0B34D6]">
+                        0{suiteIdx + 1} · {suite.subtitle}
+                      </div>
+                      <h4 className="mt-1 font-display text-lg font-bold text-[#040B29]">
+                        {suite.title}
+                      </h4>
+                      <ul className="mt-4 divide-y divide-slate-100 border-t border-slate-100">
+                        {suite.items.map((item) => (
+                          <li key={item.name} className="py-3">
+                            <div className="flex items-start gap-2.5">
+                              <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0B34D6]" />
+                              <div className="min-w-0">
+                                <span className="text-sm font-semibold text-[#040B29]">
+                                  {item.name}
+                                </span>
+                                <p className="mt-0.5 text-xs leading-relaxed text-slate-600">
+                                  {item.detail}
+                                </p>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {carrotTab === 'standards' && (
+                <div className="space-y-8">
+                  <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-end">
+                    <div>
+                      <p className="text-xs font-medium text-[#0B34D6]">
+                        Strategic HSE System Benefits
+                      </p>
+                      <h4 className="mt-1 font-display text-xl font-bold text-[#040B29]">
+                        Measurable impact on global safety standards &amp; Proactive, Active, and Predictive HSE KPIs
+                      </h4>
+                    </div>
+                    <span className="font-mono text-xs text-slate-500 whitespace-nowrap shrink-0">
+                      Visual RCA &amp; CAPA Ready
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                    {CARROT_VISION_DATA.standards.map((std) => (
+                      <div key={std.code} className="min-w-0 border-b border-slate-100 pb-6">
+                        <div className="font-mono text-xs font-semibold text-[#0B34D6]">
+                          {std.code}
+                        </div>
+                        <h5 className="mt-1.5 font-display text-lg font-bold text-[#040B29]">
+                          {std.title}
+                        </h5>
+                        <p className="mt-2 text-sm leading-relaxed text-slate-600">{std.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {carrotTab === 'proof' && (
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 gap-6 border-b border-slate-200 pb-8 lg:grid-cols-3">
+                    {CARROT_VISION_DATA.controlRoomCapabilities.map((cap, idx) => (
+                      <div key={cap.title} className="min-w-0">
+                        <div className="font-mono text-xs font-medium text-[#0B34D6]">
+                          0{idx + 1} · Central Control
+                        </div>
+                        <h4 className="mt-1.5 font-display text-base font-bold text-[#040B29]">
+                          {cap.title}
+                        </h4>
+                        <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
+                          {cap.detail}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div>
+                    <h4 className="font-display text-base font-bold text-[#040B29]">
+                      Verified Field &amp; Thermal Site Proof
+                    </h4>
+                    <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2">
+                      {CARROT_VISION_DATA.liveSiteProofs.map((proof) => (
+                        <div
+                          key={proof.title}
+                          className="min-w-0 border-b border-slate-100 pb-5"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                            <span className="font-medium text-slate-500">{proof.location}</span>
+                            {proof.metric && (
+                              <span className="font-mono font-semibold text-[#0B34D6]">
+                                {proof.metric}
+                              </span>
+                            )}
+                          </div>
+                          <h5 className="mt-1.5 font-display text-base font-bold text-[#040B29]">
+                            {proof.title}
+                          </h5>
+                          <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
+                            {proof.detail}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+              </>
+            )}
+
+            {activeDeepDive === 'gsd-ai-attendance' && (
+              <>
+                <div className="flex flex-col justify-between gap-6 border-b border-slate-200 p-6 sm:p-8 lg:flex-row lg:items-end">
+                  <div className="max-w-3xl">
+                    <p className="text-xs font-medium text-[#0B34D6]">
+                      {SMART_ATTENDANCE_DATA.eyebrow}
+                    </p>
+                    <h3 className="mt-3 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl [text-wrap:balance]">
+                      {SMART_ATTENDANCE_DATA.title}
+                    </h3>
+                    <p className="mt-2 text-sm font-medium text-slate-800">
+                      {SMART_ATTENDANCE_DATA.tagline}
+                    </p>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                      {SMART_ATTENDANCE_DATA.summary}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center shrink-0">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleRequestDemo(
+                          'Smart Employee Attendance & HR Reporting — Smart Workplace & HR AI',
+                        )
+                      }
+                      className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md bg-[#0B34D6] px-5 py-2.5 text-xs font-semibold text-white whitespace-nowrap shrink-0 transition-colors hover:bg-[#06249E]"
+                    >
+                      <span>Request HR Attendance Demo</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  role="tablist"
+                  aria-label="Smart Employee Attendance details"
+                  className="flex flex-wrap gap-2 border-b border-slate-200 bg-[#F8FAFC] px-6 py-3.5 sm:px-8"
+                >
+                  {(
+                    [
+                      {id: 'overview', label: 'Savings & 4-Step Setup'},
+                      {id: 'hr-tools', label: 'Daily HR & Shift Tools'},
+                      {id: 'comparison', label: 'In-House vs. Cloud'},
+                    ] as const
+                  ).map((tab) => {
+                    const isSelected = attendanceTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        role="tab"
+                        type="button"
+                        aria-selected={isSelected}
+                        onClick={() => setAttendanceTab(tab.id)}
+                        className={`min-h-[40px] rounded-md px-3.5 py-2 text-xs font-medium whitespace-nowrap shrink-0 transition-colors duration-150 sm:text-sm ${
+                          isSelected
+                            ? 'bg-[#040B29] text-white'
+                            : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:text-[#040B29]'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="p-6 sm:p-8">
+                  {attendanceTab === 'overview' && (
+                    <div className="space-y-8">
+                      <div className="grid grid-cols-1 gap-6 border-b border-slate-200 pb-8 md:grid-cols-3">
+                        {SMART_ATTENDANCE_DATA.savingsMetrics.map((metric) => (
+                          <div key={metric.label} className="min-w-0">
+                            <div className="font-mono text-2xl font-bold text-[#0B34D6] sm:text-3xl">
+                              {metric.value}
+                            </div>
+                            <h4 className="mt-1.5 font-display text-base font-bold text-[#040B29]">
+                              {metric.label}
+                            </h4>
+                            <p className="mt-1 text-sm leading-relaxed text-slate-600">
+                              {metric.detail}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div>
+                        <h4 className="font-display text-base font-bold text-[#040B29]">
+                          Easy Setup in 4 Simple Steps (Zero Disruption)
+                        </h4>
+                        <div className="mt-4 grid grid-cols-1 gap-6 border-b border-slate-200 pb-8 sm:grid-cols-2 lg:grid-cols-4">
+                          {SMART_ATTENDANCE_DATA.setupSteps.map((step) => (
+                            <div key={step.step} className="min-w-0">
+                              <div className="font-mono text-sm font-semibold text-[#0B34D6]">
+                                {step.step}
+                              </div>
+                              <div className="mt-1 font-display text-base font-semibold text-[#040B29]">
+                                {step.title}
+                              </div>
+                              <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
+                                {step.detail}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="font-display text-base font-bold text-[#040B29]">
+                          Replaces Fingerprint Punch Machines
+                        </h4>
+                        <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-3">
+                          {SMART_ATTENDANCE_DATA.challengesReplaced.map((item, idx) => (
+                            <div key={item.title} className="min-w-0">
+                              <div className="font-mono text-xs font-medium text-slate-500">
+                                0{idx + 1} · Challenge Solved
+                              </div>
+                              <div className="mt-1 font-display text-sm font-bold text-[#040B29]">
+                                {item.title}
+                              </div>
+                              <p className="mt-1 text-sm leading-relaxed text-slate-600">
+                                {item.detail}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {attendanceTab === 'hr-tools' && (
+                    <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                      {SMART_ATTENDANCE_DATA.hrCapabilities.map((cap, idx) => (
+                        <div key={cap.title} className="min-w-0 border-b border-slate-100 pb-6">
+                          <div className="font-mono text-xs font-medium text-[#0B34D6]">
+                            0{idx + 1} · HR &amp; Shift Control
+                          </div>
+                          <h4 className="mt-1.5 font-display text-lg font-bold text-[#040B29]">
+                            {cap.title}
+                          </h4>
+                          <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                            {cap.detail}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {attendanceTab === 'comparison' && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[540px] border-collapse text-left text-sm">
+                        <thead>
+                          <tr className="border-b border-slate-200 text-xs font-semibold text-slate-500">
+                            <th className="py-3 pr-4">Comparison Point</th>
+                            <th className="bg-[#F8FAFC] px-4 py-3 text-[#0B34D6]">
+                              Our In-House System
+                            </th>
+                            <th className="py-3 pl-4">Standard Cloud Subscriptions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {SMART_ATTENDANCE_DATA.comparison.map((row) => (
+                            <tr key={row.point}>
+                              <td className="py-4 pr-4 font-semibold text-[#040B29]">
+                                {row.point}
+                              </td>
+                              <td className="bg-[#F8FAFC] px-4 py-4 font-medium text-[#040B29]">
+                                {row.inHouse}
+                              </td>
+                              <td className="py-4 pl-4 text-slate-600">{row.cloud}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {activeDeepDive === 'retail-command' && (
+              <>
+                <div className="flex flex-col justify-between gap-6 border-b border-slate-200 p-6 sm:p-8 lg:flex-row lg:items-end">
+                  <div className="max-w-3xl">
+                    <p className="text-xs font-medium text-[#0B34D6]">
+                      {RETAIL_COMMAND_DATA.eyebrow}
+                    </p>
+                    <h3 className="mt-3 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl [text-wrap:balance]">
+                      {RETAIL_COMMAND_DATA.title}
+                    </h3>
+                    <p className="mt-2 text-sm font-medium text-slate-800">
+                      {RETAIL_COMMAND_DATA.tagline}
+                    </p>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                      {RETAIL_COMMAND_DATA.summary}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center shrink-0">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleRequestDemo(
+                          'Retail Command & Virtual Manager — Retail AI & Virtual Manager',
+                        )
+                      }
+                      className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md bg-[#0B34D6] px-5 py-2.5 text-xs font-semibold text-white whitespace-nowrap shrink-0 transition-colors hover:bg-[#06249E]"
+                    >
+                      <span>Request Virtual Manager Demo</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  role="tablist"
+                  aria-label="Retail Command & Virtual Manager details"
+                  className="flex flex-wrap gap-2 border-b border-slate-200 bg-[#F8FAFC] px-6 py-3.5 sm:px-8"
+                >
+                  {(
+                    [
+                      {id: 'architecture', label: 'Dual-Camera & POS Architecture'},
+                      {id: 'virtual-manager', label: 'Virtual Manager Command'},
+                      {id: 'roi', label: 'Business Impact & ROI'},
+                    ] as const
+                  ).map((tab) => {
+                    const isSelected = retailTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        role="tab"
+                        type="button"
+                        aria-selected={isSelected}
+                        onClick={() => setRetailTab(tab.id)}
+                        className={`min-h-[40px] rounded-md px-3.5 py-2 text-xs font-medium whitespace-nowrap shrink-0 transition-colors duration-150 sm:text-sm ${
+                          isSelected
+                            ? 'bg-[#040B29] text-white'
+                            : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:text-[#040B29]'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="p-6 sm:p-8">
+                  {retailTab === 'architecture' && (
+                    <div className="space-y-8">
+                      <div className="grid grid-cols-1 gap-6 border-b border-slate-200 pb-8 lg:grid-cols-3">
+                        {RETAIL_COMMAND_DATA.architecturePillars.map((pillar) => (
+                          <div key={pillar.index} className="min-w-0">
+                            <div className="font-mono text-xs font-medium text-[#0B34D6]">
+                              {pillar.index} · {pillar.subtitle}
+                            </div>
+                            <h4 className="mt-1.5 font-display text-lg font-bold text-[#040B29]">
+                              {pillar.title}
+                            </h4>
+                            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                              {pillar.detail}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-8 md:flex-row md:items-center">
+                        <div>
+                          <div className="text-xs font-medium text-[#0B34D6]">
+                            The True Conversion Metric
+                          </div>
+                          <h4 className="mt-1 font-display text-lg font-bold text-[#040B29]">
+                            A verified baseline removing staff entries from total footfall
+                          </h4>
+                        </div>
+                        <div className="rounded-lg border border-slate-200 bg-[#F8FAFC] px-4 py-3 font-mono text-xs font-semibold text-[#040B29] sm:text-sm">
+                          {RETAIL_COMMAND_DATA.conversionFormula}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="font-display text-base font-bold text-[#040B29]">
+                          Blind Spots Solved in Multi-Branch Retail
+                        </h4>
+                        <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-3">
+                          {RETAIL_COMMAND_DATA.blindSpotsSolved.map((item) => (
+                            <div key={item.index} className="min-w-0">
+                              <div className="font-mono text-xs font-medium text-slate-500">
+                                {item.index}
+                              </div>
+                              <div className="mt-1 font-display text-sm font-bold text-[#040B29]">
+                                {item.title}
+                              </div>
+                              <p className="mt-1 text-sm leading-relaxed text-slate-600">
+                                {item.detail}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {retailTab === 'virtual-manager' && (
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                      {RETAIL_COMMAND_DATA.virtualManagerCapabilities.map((cap) => (
+                        <div key={cap.index} className="min-w-0 border-b border-slate-100 pb-6 lg:border-b-0 lg:pb-0">
+                          <div className="font-mono text-xs font-medium text-[#0B34D6]">
+                            {cap.index} · Executive Command
+                          </div>
+                          <h4 className="mt-1.5 font-display text-lg font-bold text-[#040B29]">
+                            {cap.title}
+                          </h4>
+                          <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                            {cap.detail}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {retailTab === 'roi' && (
+                    <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                      {RETAIL_COMMAND_DATA.businessImpact.map((impact) => (
+                        <div key={impact.index} className="min-w-0 border-b border-slate-100 pb-6">
+                          <div className="font-mono text-xs font-medium text-[#0B34D6]">
+                            {impact.index} · Operational Discipline
+                          </div>
+                          <h4 className="mt-1.5 font-display text-lg font-bold text-[#040B29]">
+                            {impact.title}
+                          </h4>
+                          <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                            {impact.detail}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </motion.div>
         </section>
 
         {/* Industry Vertical Solutions: Interactive Selector */}
