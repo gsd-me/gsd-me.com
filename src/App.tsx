@@ -163,10 +163,10 @@ export default function App() {
 
     const sectionIds: SectionId[] = [
       'top',
+      'about',
       'ecosystem',
       'solutions',
       'customers',
-      'about',
       'success-stories',
       'partners',
       'contact',
@@ -290,14 +290,14 @@ export default function App() {
             className="hidden md:flex items-center gap-4 text-sm font-medium text-slate-600 lg:gap-7"
           >
             <a
-              href="#solutions"
+              href="#about"
               onClick={(e) => {
                 e.preventDefault();
-                scrollToSection('solutions');
+                scrollToSection('about');
               }}
               className="py-1 whitespace-nowrap shrink-0 transition-colors hover:text-[#0B34D6] hover:underline hover:underline-offset-4"
             >
-              Solutions
+              About
             </a>
             <a
               href="#ecosystem"
@@ -310,14 +310,14 @@ export default function App() {
               Ecosystem
             </a>
             <a
-              href="#customers"
+              href="#solutions"
               onClick={(e) => {
                 e.preventDefault();
-                scrollToSection('customers');
+                scrollToSection('solutions');
               }}
               className="py-1 whitespace-nowrap shrink-0 transition-colors hover:text-[#0B34D6] hover:underline hover:underline-offset-4"
             >
-              Customers
+              Solutions
             </a>
             <a
               href="#success-stories"
@@ -367,10 +367,10 @@ export default function App() {
           <div className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-slate-200 bg-white px-4 py-4 sm:px-6 md:hidden">
             <nav aria-label="Mobile Navigation" className="flex flex-col gap-1">
               {[
-                {label: 'Solutions', id: 'solutions'},
-                {label: 'Services Ecosystem', id: 'ecosystem'},
-                {label: 'Customers', id: 'customers'},
                 {label: 'About GSD', id: 'about'},
+                {label: 'Services Ecosystem', id: 'ecosystem'},
+                {label: 'Solutions', id: 'solutions'},
+                {label: 'Customers', id: 'customers'},
                 {label: 'Success Stories', id: 'success-stories'},
                 {label: 'Our Partners', id: 'partners'},
                 {label: 'Contact Us', id: 'contact'},
@@ -550,6 +550,66 @@ export default function App() {
               ))}
             </motion.div>
           </div>
+        </section>
+
+        {/* About GSD Technologies Egypt: Story, Mission, Vision & Our Approach */}
+        <section
+          id="about"
+          className="border-b border-slate-200 bg-white py-14 sm:py-20 lg:py-24"
+        >
+          <motion.div
+            initial={{opacity: 0, y: 20}}
+            whileInView={{opacity: 1, y: 0}}
+            viewport={VIEWPORT_ONCE}
+            transition={{duration: 0.45, ease: EASE_OUT}}
+            className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:gap-12 lg:px-8"
+          >
+            <div className="min-w-0 lg:col-span-5">
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+                <ResilientImage
+                  src={SECTION_IMAGES.aboutOffice.src}
+                  alt={SECTION_IMAGES.aboutOffice.alt}
+                  fallbackTitle="GSD Technologies Egypt — Maadi, Cairo"
+                  className="aspect-[4/3] w-full object-cover object-center"
+                />
+              </div>
+              <p className="mt-6 text-xs font-medium text-[#0B34D6]">About GSD Technologies Egypt</p>
+              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl [text-wrap:balance]">
+                25+ years of regional ICT leadership meeting practical enterprise AI
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-slate-600">{COMPANY_INFO.story}</p>
+            </div>
+
+            <div className="min-w-0 space-y-6 border-t border-slate-200 pt-8 lg:col-span-7 lg:border-t-0 lg:border-l lg:pl-10 lg:pt-0">
+              <div className="border-b border-slate-200 pb-6">
+                <div className="font-mono text-xs font-medium text-[#0B34D6]">01</div>
+                <h3 className="mt-1 font-display text-lg font-semibold text-[#040B29]">
+                  Our Mission
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  {COMPANY_INFO.mission}
+                </p>
+              </div>
+              <div className="border-b border-slate-200 pb-6">
+                <div className="font-mono text-xs font-medium text-[#0B34D6]">02</div>
+                <h3 className="mt-1 font-display text-lg font-semibold text-[#040B29]">
+                  Our Vision
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  {COMPANY_INFO.vision}
+                </p>
+              </div>
+              <div>
+                <div className="font-mono text-xs font-medium text-[#0B34D6]">03</div>
+                <h3 className="mt-1 font-display text-lg font-semibold text-[#040B29]">
+                  Our Approach
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  {COMPANY_INFO.approach}
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </section>
 
         {/* Services Ecosystem Overview: Asymmetric Bento Grid */}
@@ -1576,66 +1636,6 @@ export default function App() {
           </motion.div>
         </section>
 
-        {/* About GSD Technologies Egypt: Story, Mission, Vision & Our Approach */}
-        <section
-          id="about"
-          className="border-t border-slate-200 bg-white py-14 sm:py-20 lg:py-24"
-        >
-          <motion.div
-            initial={{opacity: 0, y: 20}}
-            whileInView={{opacity: 1, y: 0}}
-            viewport={VIEWPORT_ONCE}
-            transition={{duration: 0.45, ease: EASE_OUT}}
-            className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:gap-12 lg:px-8"
-          >
-            <div className="min-w-0 lg:col-span-5">
-              <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
-                <ResilientImage
-                  src={SECTION_IMAGES.aboutOffice.src}
-                  alt={SECTION_IMAGES.aboutOffice.alt}
-                  fallbackTitle="GSD Technologies Egypt — Maadi, Cairo"
-                  className="aspect-[4/3] w-full object-cover object-center"
-                />
-              </div>
-              <p className="mt-6 text-xs font-medium text-[#0B34D6]">About GSD Technologies Egypt</p>
-              <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl [text-wrap:balance]">
-                25+ years of regional ICT leadership meeting practical enterprise AI
-              </h2>
-              <p className="mt-4 text-sm leading-relaxed text-slate-600">{COMPANY_INFO.story}</p>
-            </div>
-
-            <div className="min-w-0 space-y-6 border-t border-slate-200 pt-8 lg:col-span-7 lg:border-t-0 lg:border-l lg:pl-10 lg:pt-0">
-              <div className="border-b border-slate-200 pb-6">
-                <div className="font-mono text-xs font-medium text-[#0B34D6]">01</div>
-                <h3 className="mt-1 font-display text-lg font-semibold text-[#040B29]">
-                  Our Mission
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  {COMPANY_INFO.mission}
-                </p>
-              </div>
-              <div className="border-b border-slate-200 pb-6">
-                <div className="font-mono text-xs font-medium text-[#0B34D6]">02</div>
-                <h3 className="mt-1 font-display text-lg font-semibold text-[#040B29]">
-                  Our Vision
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  {COMPANY_INFO.vision}
-                </p>
-              </div>
-              <div>
-                <div className="font-mono text-xs font-medium text-[#0B34D6]">03</div>
-                <h3 className="mt-1 font-display text-lg font-semibold text-[#040B29]">
-                  Our Approach
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  {COMPANY_INFO.approach}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </section>
-
         {/* Proven Regional Success Stories */}
         <section
           id="success-stories"
@@ -2108,12 +2108,12 @@ export default function App() {
               <div className="text-xs font-semibold text-white">Navigation</div>
               <ul className="mt-3 grid grid-cols-2 gap-y-2.5 text-sm">
                 {[
-                  {label: 'Our Solutions', id: 'solutions'},
+                  {label: 'About GSD', id: 'about'},
                   {label: 'Services Ecosystem', id: 'ecosystem'},
+                  {label: 'Our Solutions', id: 'solutions'},
                   {label: 'Customers', id: 'customers'},
                   {label: 'Success Stories', id: 'success-stories'},
                   {label: 'Our Partners', id: 'partners'},
-                  {label: 'About GSD', id: 'about'},
                   {label: 'Contact Us', id: 'contact'},
                 ].map((link) => (
                   <li key={link.id}>
