@@ -136,6 +136,7 @@ function gsdDynamicSeoAndSitemapPlugin(): Plugin {
         const renderedHtml = injectSectionMetaIntoHtml(baseHtml, section, siteOrigin);
         if (section.slug === '/') {
           fs.writeFileSync(indexHtmlPath, renderedHtml);
+          fs.writeFileSync(path.join(distDir, '404.html'), renderedHtml);
         } else {
           const sectionDir = path.join(distDir, section.slug.replace(/^\/+/, ''));
           fs.mkdirSync(sectionDir, {recursive: true});
