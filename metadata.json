@@ -1,0 +1,8 @@
+{
+  "name": "Remix GSD Technologies Egypt",
+  "description": "Enterprise AI video analytics, industrial safety monitoring, and digital transformation solutions across Egypt and the MEA region.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
