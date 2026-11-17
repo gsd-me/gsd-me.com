@@ -549,13 +549,13 @@ export default function App() {
                     Digital Transformation Experts · 25+ Years MEA Experience
                   </p>
                   <h1 className="mt-4 max-w-2xl font-display text-[clamp(2rem,4vw,3.75rem)] font-bold leading-[1.08] tracking-tight text-white sm:mt-5 [text-wrap:balance]">
-                    AI Video Analytics, Computer Vision &amp; Industrial Safety
+                    AI HSE Compliance, PPE Detection &amp; Video Analytics in Egypt &amp; MEA
                   </h1>
                   <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-200 sm:mt-6 sm:text-lg">
-                    Turn existing CCTV and AI cameras into real-time HSE AI, PPE detection, fire
-                    &amp; smoke, overhead crane, restricted zone, and trespassing alerts—plus
-                    GSD-DocAi document management, AI driver cameras, face recognition, AI counting,
-                    and Virtual Retail Manager store intelligence.
+                    Turn existing CCTV into a PPE detection camera system with industrial fire and
+                    smoke video analytics, overhead crane safety monitoring, LPR gate control,
+                    retail footfall counting, DMS dashcam fleet safety, and Makkook decision
+                    intelligence across Egypt and Saudi Arabia.
                   </p>
                 </div>
 
@@ -738,14 +738,16 @@ export default function App() {
             className="flex flex-col justify-between gap-6 border-b border-slate-200 pb-8 lg:flex-row lg:items-end"
           >
             <div className="max-w-2xl">
-              <p className="text-xs font-medium text-[#0B34D6]">Our AI Solutions Ecosystem</p>
+              <p className="text-xs font-medium text-[#0B34D6]">
+                Our AI Solutions Ecosystem · Egypt &amp; Saudi Arabia
+              </p>
               <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl lg:text-4xl [text-wrap:balance]">
-                A unified portfolio of AI engines designed to protect, optimize, and grow your business
+                Carrot Vision AI, Eocortex Partner Egypt, Cloud VSaaS &amp; Hardware-Agnostic VMS
               </h2>
             </div>
             <p className="max-w-md text-sm leading-relaxed text-slate-600">
-              We do not move boxes—we deploy end-to-end AI engines with hands-on engineering
-              precision across manufacturing, healthcare, telecom, retail, and logistics fleets.
+              We deploy Cloud VSaaS Middle East, Makkook decision intelligence, AI production
+              scheduling, DMS dashcams, Smart Attendance, and GSD-DocAi with full local engineering.
             </p>
           </motion.div>
 
@@ -1579,10 +1581,12 @@ export default function App() {
               viewport={VIEWPORT_ONCE}
               transition={{duration: 0.45, ease: EASE_OUT}}
             >
-              <div className="max-w-2xl">
-                <p className="text-xs font-medium text-[#0B34D6]">Industry Solutions</p>
+              <div className="max-w-3xl">
+                <p className="text-xs font-medium text-[#0B34D6]">
+                  Industry Solutions · Egypt &amp; MEA
+                </p>
                 <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl lg:text-4xl [text-wrap:balance]">
-                  Tailored AI modules for high-stakes physical environments
+                  ONVIF AI Video Analytics, LPR Gate Control &amp; Retail Footfall Counting in Egypt
                 </h2>
               </div>
 

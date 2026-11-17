@@ -157,7 +157,7 @@ export function SolutionSubpageView({
               Designed for {data.personaBadge}
             </p>
             <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl [text-wrap:balance]">
-              Operational bottlenecks resolved without replacing existing infrastructure
+              {data.painPointsHeading}
             </h2>
           </div>
 
@@ -189,8 +189,8 @@ export function SolutionSubpageView({
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
         <div className="max-w-3xl">
           <p className="text-xs font-medium text-[#0B34D6]">Core Modules &amp; Architecture</p>
-          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl">
-            Production-ready AI capabilities tailored to your environment
+          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl [text-wrap:balance]">
+            {data.capabilitiesHeading}
           </h2>
         </div>
 

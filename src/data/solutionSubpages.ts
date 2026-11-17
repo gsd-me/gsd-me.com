@@ -9,6 +9,8 @@ export interface SolutionSubpageData {
   eyebrow: string;
   h1: string;
   lead: string;
+  painPointsHeading: string;
+  capabilitiesHeading: string;
   heroImage: {
     src: string;
     alt: string;
@@ -50,9 +52,13 @@ export const SOLUTION_SUBPAGES: SolutionSubpageData[] = [
     shortTitle: 'Industrial HSE & Video Analytics',
     hubSummary:
       'PPE compliance, early fire & smoke, thermal RDF hotspots, overhead crane red zones, forklift rules & PLC machine triggers via Carrot Vision.',
-    eyebrow: 'Industrial & Manufacturing · Carrot Vision QHSE AI',
-    h1: 'Industrial HSE AI Video Analytics & Plant Safety Automation',
-    lead: 'Turn existing plant CCTV and thermal cameras into a 24/7 automated QHSE engineer running 100% locally on site servers—enforcing PPE compliance, fire & smoke alerts, crane exclusion zones, and direct PLC interlocks.',
+    eyebrow: 'Industrial & Manufacturing · Carrot Vision AI Egypt',
+    h1: 'AI HSE Compliance, PPE Detection Camera System & Overhead Crane Safety Monitoring in Egypt',
+    lead: 'Turn existing plant CCTV and thermal cameras into a 24/7 automated QHSE engineer running 100% locally on site servers across Egypt and Saudi Arabia—enforcing PPE compliance, industrial fire and smoke video analytics, crane exclusion zones, and direct PLC interlocks.',
+    painPointsHeading:
+      'Industrial fire and smoke video analytics & overhead crane safety monitoring Egypt without replacing CCTV',
+    capabilitiesHeading:
+      'PPE detection camera system, thermal RDF hotspot prevention & PLC machine interlocks',
     heroImage: {
       src: '/src/assets/images/solution_carrot_vision_1794865969929.jpg',
       alt: 'Carrot Vision industrial HSE AI monitoring PPE compliance and overhead crane safety inside a manufacturing plant',
@@ -168,8 +174,12 @@ export const SOLUTION_SUBPAGES: SolutionSubpageData[] = [
     hubSummary:
       'POS sync, True Conversion Rate, footfall heatmaps, Smart Employee Attendance, LPR gate automation & perimeter security via Aipix & Eocortex.',
     eyebrow: 'Commercial Real Estate, Malls & Multi-Branch Retail',
-    h1: 'Retail AI, Mall Footfall Counting & Smart Compound Automation',
-    lead: 'Unify store POS synchronization, staff-filtered footfall heatmaps, Virtual Retail Manager oversight, and automated LPR vehicle gate access across retail chains, shopping malls, and gated residential resorts.',
+    h1: 'Retail Footfall Counting, LPR Gate Control & ANPR Camera System in Egypt',
+    lead: 'Unify POS camera integration, mall heatmap video analytics, customer demographic camera AI, and automated LPR gate control across retail chains, shopping malls, and gated compounds in Cairo, Egypt, and Saudi Arabia.',
+    painPointsHeading:
+      'ONVIF AI video analytics Egypt for POS camera integration, customer demographics & perimeter intrusion',
+    capabilitiesHeading:
+      'Mall heatmap video analytics, ANPR camera system Cairo & Smart Employee Attendance',
     heroImage: {
       src: '/src/assets/images/solutions_smart_facility_1794852240500.jpg',
       alt: 'Smart commercial corridor monitored by ceiling-mounted AI security cameras for visitor counting and access control',
@@ -288,8 +298,12 @@ export const SOLUTION_SUBPAGES: SolutionSubpageData[] = [
     hubSummary:
       'In-cabin AI dashcams detecting driver fatigue, microsleep, phone use & seatbelt gaps paired with forward ADAS collision alerts via Howen & AIS.',
     eyebrow: 'Commercial Fleets, Gas Transport & Heavy Logistics',
-    h1: 'AI Fleet Driver Monitoring (DMS) & Forward ADAS Collision Prevention',
-    lead: 'Protect drivers, cargo, and public highways with rugged in-cabin AI driver cameras and forward-facing ADAS co-pilots—catching fatigue, distraction, phone use, and tailgating before accidents occur.',
+    h1: 'AI Fleet Driver Monitoring Egypt & DMS Dashcam Fleet Safety',
+    lead: 'Protect drivers, cargo, and highways across Egypt and Saudi Arabia with rugged in-cabin DMS dashcam fleet safety and forward-facing ADAS co-pilots—catching fatigue, microsleep, mobile phone use, and tailgating in real time.',
+    painPointsHeading:
+      'In-cabin DMS dashcam fleet safety preventing fatigue, microsleep & distraction on Egyptian routes',
+    capabilitiesHeading:
+      'AI fleet driver monitoring Egypt: biometric driver Face ID, ADAS & 3-channel telemetry',
     heroImage: {
       src: '/src/assets/images/stories_cement_fleet_1794852242743.jpg',
       alt: 'Commercial heavy truck logistics yard and industrial transport fleet protected by in-cabin AI driver monitoring cameras',
@@ -403,9 +417,13 @@ export const SOLUTION_SUBPAGES: SolutionSubpageData[] = [
     shortTitle: 'Decision Intelligence (Makkook DIOS)',
     hubSummary:
       '60+ algorithmic optimization engines auto-resolving scheduling, multi-echelon safety stock, route sequencing & retail margin bottlenecks.',
-    eyebrow: 'Enterprise Operations · Makkook Decision Intelligence OS',
-    h1: 'Decision Intelligence OS (Makkook DIOS) for Production & Supply Chain',
-    lead: 'Deploy 60+ algorithmic optimization engines across manufacturing schedules, multi-echelon inventory, multi-drop vehicle dispatch, and retail replenishment—turning operational constraints into measurable margin gains.',
+    eyebrow: 'Enterprise Operations · Makkook Decision Intelligence Egypt',
+    h1: 'Makkook Decision Intelligence Egypt & AI Production Scheduling OS',
+    lead: 'Deploy 60+ algorithmic optimization engines across Egypt and Saudi Arabia for AI production scheduling, multi-echelon inventory, multi-drop vehicle dispatch, and retail replenishment—turning plant and supply constraints into margin gains.',
+    painPointsHeading:
+      'AI production scheduling, safety stock allocation & fleet dispatch optimization',
+    capabilitiesHeading:
+      'Makkook decision intelligence Egypt: 60+ production, supply chain, logistics & retail engines',
     heroImage: {
       src: '/src/assets/images/solution_makkook_dios_1794865969666.jpg',
       alt: 'Makkook DIOS algorithmic optimization across logistics truck dispatch bays, warehouse inventory, and automated production lines',

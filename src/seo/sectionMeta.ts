@@ -42,11 +42,11 @@ export const SECTION_SEO_LIST: SectionSeoConfig[] = [
   {
     id: 'top',
     slug: '/',
-    title: 'GSD Technologies | Video Analytics, Computer Vision & HSE AI',
+    title: 'AI HSE Compliance Egypt, PPE Detection & Video Analytics | GSD',
     description:
-      'Enterprise AI video analytics & computer vision in Egypt & MEA: HSE AI, PPE detection, fire & smoke, face recognition, document management & retail AI.',
+      'AI HSE compliance Egypt, PPE detection camera system, industrial fire and smoke video analytics & overhead crane safety monitoring across Egypt and Saudi Arabia.',
     keywords:
-      'video analytics, AI video, computer vision, HSE AI, PPE detection, fire and smoke detection, restricted zone, safety, overhead crane safety, trespassing detection, AI cameras, document management, AI driver camera, retail AI solutions, AI store, virtual retail manager, AI attendance, AI counting, face recognition, GSD Technologies Egypt',
+      'AI HSE compliance Egypt, PPE detection camera system, industrial fire and smoke video analytics, overhead crane safety monitoring Egypt, Carrot Vision AI Egypt, Eocortex partner Egypt, GSD Technologies Egypt',
     ogImage: '/src/assets/images/hero_control_center_1794852239757.jpg',
     ogImageAlt: 'GSD Technologies AI video analytics and computer vision command room',
     changefreq: 'weekly',
@@ -55,11 +55,11 @@ export const SECTION_SEO_LIST: SectionSeoConfig[] = [
   {
     id: 'ecosystem',
     slug: '/gsd-services-ecosystem',
-    title: 'AI Video, Attendance & Retail Virtual Manager | GSD',
+    title: 'Carrot Vision AI, Eocortex Partner Egypt & Cloud VSaaS | GSD',
     description:
-      'Deploy Carrot Vision QHSE AI, Eocortex, Makkook DIOS, Aipix, DMS/ADAS, GSD-DocAi, Smart Employee Attendance & HR Reporting, and Retail Command Virtual Manager.',
+      'Deploy Carrot Vision AI Egypt, Eocortex partner Egypt hardware-agnostic VMS, Cloud VSaaS Middle East (Aipix), DMS dashcam fleet safety & Makkook decision intelligence.',
     keywords:
-      'AI video analytics, Carrot Vision AI, Smart Employee Attendance, HR reporting, Retail Command Virtual Manager, true conversion rate, Eocortex VMS, Makkook DIOS, Aipix VSaaS, GSD-DocAi, AI driver camera',
+      'Cloud VSaaS Middle East, Eocortex partner Egypt, Carrot Vision AI Egypt, hardware-agnostic VMS, Makkook decision intelligence Egypt, AI production scheduling, DMS dashcam fleet safety, Smart Employee Attendance, Retail Command Virtual Manager, GSD-DocAi',
     ogImage: '/src/assets/images/ecosystem_industrial_ai_1794852240167.jpg',
     ogImageAlt: 'Industrial computer vision and AI cameras monitoring overhead cranes and PPE',
     changefreq: 'weekly',
@@ -68,11 +68,11 @@ export const SECTION_SEO_LIST: SectionSeoConfig[] = [
   {
     id: 'solutions',
     slug: '/our-solutions',
-    title: 'HSE AI, PPE Detection & Retail AI Store Solutions | GSD',
+    title: 'LPR Gate Control, Retail Footfall & ONVIF AI Video Egypt | GSD',
     description:
-      'Computer vision solutions for PPE & coverall detection, fall & forklift safety, fire & smoke, thermal RDF monitoring, restricted zones, overhead cranes & retail AI.',
+      'ONVIF AI video analytics Egypt for LPR gate control Egypt, ANPR camera system Cairo, perimeter intrusion AI analytics, retail footfall counting Egypt & mall heatmaps.',
     keywords:
-      'PPE detection, coverall detection, fall detection man down, forklift safety AI, fire and smoke, thermal monitoring, PTW LOTO COSHH, restricted zone monitoring, overhead crane safety, trespassing alerts, retail AI solutions, AI store, virtual retail manager',
+      'LPR gate control Egypt, ANPR camera system Cairo, perimeter intrusion AI analytics, ONVIF AI video analytics Egypt, retail footfall counting Egypt, mall heatmap video analytics, POS camera integration Egypt, customer demographic camera AI, PPE detection camera system',
     ogImage: '/src/assets/images/solutions_smart_facility_1794852240500.jpg',
     ogImageAlt: 'AI cameras running face recognition, AI counting, and facility safety monitoring',
     changefreq: 'weekly',
@@ -146,11 +146,11 @@ export const SECTION_SEO_LIST: SectionSeoConfig[] = [
   {
     id: 'sol-industrial-hse',
     slug: '/solutions/industrial-hse-video-analytics',
-    title: 'Industrial HSE AI Cameras & Plant Safety Egypt | GSD',
+    title: 'AI HSE Compliance Egypt & PPE Detection Camera System | GSD',
     description:
-      'Carrot Vision AI for HSE & Plant Managers: 24/7 PPE compliance, early fire & smoke, 153.8°C thermal RDF alerts, crane exclusion zones & PLC triggers on existing CCTV.',
+      'AI HSE compliance Egypt & Saudi Arabia via Carrot Vision AI: PPE detection camera system, industrial fire and smoke video analytics & overhead crane safety monitoring Egypt.',
     keywords:
-      'Industrial HSE AI camera Egypt, PPE detection Egypt, Carrot Vision AI, overhead crane safety AI, fire and smoke video analytics, thermal RDF hotspot monitoring, PLC safety interlocks, plant safety computer vision',
+      'AI HSE compliance Egypt, PPE detection camera system, industrial fire and smoke video analytics, overhead crane safety monitoring Egypt, Carrot Vision AI Egypt, thermal RDF hotspot monitoring, PLC safety interlocks',
     ogImage: '/src/assets/images/solution_carrot_vision_1794865969929.jpg',
     ogImageAlt: 'Carrot Vision industrial HSE AI monitoring PPE compliance and overhead cranes',
     changefreq: 'weekly',
@@ -159,11 +159,11 @@ export const SECTION_SEO_LIST: SectionSeoConfig[] = [
   {
     id: 'sol-retail-malls-compounds',
     slug: '/solutions/retail-malls-smart-compounds',
-    title: 'Retail AI, Mall Footfall Counting & LPR Gates Egypt | GSD',
+    title: 'LPR Gate Control, Retail Footfall & Mall Heatmaps Egypt | GSD',
     description:
-      'POS-synced True Conversion Rate, footfall heatmaps, Smart Employee Attendance & automated LPR compound gates powered by Retail Command, Eocortex & Aipix.',
+      'Retail footfall counting Egypt, POS camera integration Egypt, mall heatmap video analytics, customer demographic camera AI, LPR gate control Egypt & ANPR camera system Cairo.',
     keywords:
-      'Mall footfall counting Egypt, LPR gate automation Egypt, Virtual Retail Manager, retail POS conversion AI, Smart Employee Attendance HR, Aipix cloud surveillance, Eocortex retail analytics, smart compound security',
+      'LPR gate control Egypt, ANPR camera system Cairo, perimeter intrusion AI analytics, ONVIF AI video analytics Egypt, retail footfall counting Egypt, mall heatmap video analytics, POS camera integration Egypt, customer demographic camera AI',
     ogImage: '/src/assets/images/solutions_smart_facility_1794852240500.jpg',
     ogImageAlt: 'Commercial mall and smart compound monitored by AI counting and LPR cameras',
     changefreq: 'weekly',
@@ -172,11 +172,11 @@ export const SECTION_SEO_LIST: SectionSeoConfig[] = [
   {
     id: 'sol-fleet-dms',
     slug: '/solutions/fleet-driver-monitoring-dms',
-    title: 'AI Fleet Driver Monitoring (DMS) & ADAS Dashcams | GSD',
+    title: 'AI Fleet Driver Monitoring Egypt & DMS Dashcam Safety | GSD',
     description:
-      'In-cabin AI driver cameras detecting microsleep fatigue, mobile phone use & seatbelt gaps paired with forward ADAS collision alerts via Howen & AIS.',
+      'AI fleet driver monitoring Egypt & Saudi Arabia: rugged DMS dashcam fleet safety for fatigue, microsleep, mobile phone distraction & forward ADAS collision alerts.',
     keywords:
-      'AI driver camera Egypt, fleet DMS ADAS Egypt, truck driver fatigue detection, mobile phone dashcam AI, Howen MDVR Egypt, commercial fleet safety AI, forward collision warning truck',
+      'AI fleet driver monitoring Egypt, DMS dashcam fleet safety, Howen AI dashcam Egypt, truck fatigue detection DMS, ADAS collision warning fleet Egypt',
     ogImage: '/src/assets/images/stories_cement_fleet_1794852242743.jpg',
     ogImageAlt: 'Commercial heavy truck logistics fleet protected by in-cabin DMS and ADAS cameras',
     changefreq: 'weekly',
@@ -185,11 +185,11 @@ export const SECTION_SEO_LIST: SectionSeoConfig[] = [
   {
     id: 'sol-decision-intelligence',
     slug: '/solutions/decision-intelligence-makkook',
-    title: 'Decision Intelligence & Supply Chain AI (Makkook DIOS) | GSD',
+    title: 'Makkook Decision Intelligence Egypt & AI Production Scheduling',
     description:
-      '60+ optimization engines for COOs & Supply Chain Heads: automated production line scheduling, multi-echelon safety stock, logistics routing & retail margin AI.',
+      'Makkook decision intelligence Egypt & MEA: 60+ engines for AI production scheduling, multi-echelon safety stock, 98%+ on-time fleet dispatch & retail margins.',
     keywords:
-      'Makkook DIOS Egypt, supply chain optimization AI, production scheduling optimization, logistics route sequencing AI, 98% on-time delivery, decision intelligence OS MEA',
+      'Makkook decision intelligence Egypt, AI production scheduling, supply chain optimization MEA, multi-drop route optimization Egypt',
     ogImage: '/src/assets/images/solution_makkook_dios_1794865969666.jpg',
     ogImageAlt: 'Makkook DIOS algorithmic optimization across production lines and logistics dispatch',
     changefreq: 'weekly',
