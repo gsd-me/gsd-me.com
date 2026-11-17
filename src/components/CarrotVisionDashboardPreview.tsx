@@ -214,13 +214,13 @@ const DASHBOARD_DATA: Record<
   },
 };
 
-export function CarrotVisionDashboardPreview() {
+export function CarrotVisionDashboardPreview({standalone = false}: {standalone?: boolean}) {
   const [timeWindow, setTimeWindow] = useState<TimeWindow>('24h');
   const [verifiedIds, setVerifiedIds] = useState<Record<string, 'Correct' | 'False'>>({});
   const data = DASHBOARD_DATA[timeWindow];
 
   return (
-    <figure className="mt-8 border-t border-slate-200 pt-8">
+    <figure className={standalone ? '' : 'mt-8 border-t border-slate-200 pt-8'}>
       <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
           <p className="text-xs font-medium text-[#0B34D6]">

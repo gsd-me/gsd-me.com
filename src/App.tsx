@@ -5,12 +5,17 @@ import {
   Building2,
   Check,
   Clock,
+  Factory,
   Layers,
   Mail,
   MapPin,
   Menu,
   Phone,
+  ShieldAlert,
   ShieldCheck,
+  ShoppingBag,
+  Truck,
+  Wrench,
   X,
 } from 'lucide-react';
 import {
@@ -26,9 +31,29 @@ import {
   SUCCESS_STORIES,
   VERTICAL_SOLUTIONS,
 } from './data/gsdContent';
-import {getSectionByPathname, SECTION_SEO_BY_ID, SectionId} from './seo/sectionMeta';
+import {
+  getSectionByPathname,
+  isSolutionSubpageId,
+  SECTION_SEO_BY_ID,
+  SectionId,
+  SolutionSubpageId,
+} from './seo/sectionMeta';
 import {useSectionSeo} from './seo/useSectionSeo';
 import {CarrotVisionDashboardPreview} from './components/CarrotVisionDashboardPreview';
+import {
+  getSolutionSubpageBySlug,
+  SOLUTION_SUBPAGE_BY_ID,
+  SOLUTION_SUBPAGES,
+} from './data/solutionSubpages';
+import {SolutionSubpageView} from './components/SolutionSubpageView';
+
+const STORY_ICONS = {
+  cement: Factory,
+  manufacturing: ShieldAlert,
+  workshop: Wrench,
+  fleet: Truck,
+  retail: ShoppingBag,
+} as const;
 
 const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const VIEWPORT_ONCE = {once: true, amount: 0.12} as const;
@@ -111,8 +136,19 @@ const INITIAL_FORM: DemoFormState = {
 };
 
 export default function App() {
+  const [activeSubpageId, setActiveSubpageId] = useState<SolutionSubpageId | null>(() => {
+    if (typeof window !== 'undefined') {
+      return getSolutionSubpageBySlug(window.location.pathname)?.id ?? null;
+    }
+    return null;
+  });
+
   const [activeSectionId, setActiveSectionId] = useState<SectionId>(() => {
     if (typeof window !== 'undefined') {
+      const sub = getSolutionSubpageBySlug(window.location.pathname);
+      if (sub) {
+        return sub.id;
+      }
       const fromPath = getSectionByPathname(window.location.pathname);
       if (fromPath) {
         return fromPath;
@@ -147,13 +183,46 @@ export default function App() {
 
   const nameInputRef = useRef<HTMLInputElement>(null);
 
-  useSectionSeo(activeSectionId);
+  useSectionSeo(activeSubpageId ?? activeSectionId);
 
   useEffect(() => {
+    const handlePopState = () => {
+      const sub = getSolutionSubpageBySlug(window.location.pathname);
+      if (sub) {
+        setActiveSubpageId(sub.id);
+        setActiveSectionId(sub.id);
+        window.scrollTo({top: 0});
+        return;
+      }
+      setActiveSubpageId(null);
+      const fromPath = getSectionByPathname(window.location.pathname);
+      const nextSection = fromPath ?? 'top';
+      setActiveSectionId(nextSection);
+      if (nextSection === 'top') {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      } else {
+        window.setTimeout(() => {
+          document.getElementById(nextSection)?.scrollIntoView({behavior: 'smooth'});
+        }, 60);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    if (activeSubpageId) {
+      return;
+    }
     const initialSection =
       getSectionByPathname(window.location.pathname) ||
       (window.location.hash.replace('#', '') as SectionId);
-    if (initialSection && initialSection !== 'top' && initialSection in SECTION_SEO_BY_ID) {
+    if (
+      initialSection &&
+      initialSection !== 'top' &&
+      !isSolutionSubpageId(initialSection) &&
+      initialSection in SECTION_SEO_BY_ID
+    ) {
       const targetEl = document.getElementById(initialSection);
       if (targetEl) {
         window.setTimeout(() => {
@@ -197,17 +266,54 @@ export default function App() {
 
     elements.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, []);
+  }, [activeSubpageId]);
 
   const activeVertical =
     VERTICAL_SOLUTIONS.find((v) => v.id === activeVerticalId) ?? VERTICAL_SOLUTIONS[0];
   const activeStory =
     SUCCESS_STORIES.find((s) => s.id === selectedStoryId) ?? SUCCESS_STORIES[0];
+  const activeSubpage = activeSubpageId ? SOLUTION_SUBPAGE_BY_ID[activeSubpageId] : null;
+
+  const navigateToSubpage = (slug: string) => {
+    setMobileMenuOpen(false);
+    const matched = getSolutionSubpageBySlug(slug);
+    if (!matched) {
+      return;
+    }
+    if (window.location.pathname !== matched.slug) {
+      window.history.pushState(null, '', matched.slug);
+    }
+    setActiveSubpageId(matched.id);
+    setActiveSectionId(matched.id);
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  };
 
   const scrollToSection = (sectionId: string) => {
     setMobileMenuOpen(false);
+    const targetSectionId = (sectionId in SECTION_SEO_BY_ID ? sectionId : 'top') as SectionId;
+
+    if (activeSubpageId) {
+      const targetConfig = SECTION_SEO_BY_ID[targetSectionId];
+      const nextUrl = targetConfig && !isSolutionSubpageId(targetSectionId) ? targetConfig.slug : '/';
+      window.history.pushState(null, '', nextUrl);
+      setActiveSubpageId(null);
+      setActiveSectionId(targetSectionId);
+      if (sectionId === 'top') {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      } else {
+        window.setTimeout(() => {
+          document.getElementById(sectionId)?.scrollIntoView({behavior: 'smooth'});
+        }, 70);
+      }
+      return;
+    }
+
     if (sectionId in SECTION_SEO_BY_ID) {
-      setActiveSectionId(sectionId as SectionId);
+      setActiveSectionId(targetSectionId);
+    }
+    if (sectionId === 'top') {
+      window.scrollTo({top: 0, behavior: 'smooth'});
+      return;
     }
     const el = document.getElementById(sectionId);
     if (el) {
@@ -262,11 +368,11 @@ export default function App() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:gap-6 sm:px-6 lg:gap-8 lg:px-8">
           {/* Zone 1: Official GSD brand logo on left side */}
           <a
-            href="#top"
+            href="/"
             aria-label="GSD Technologies — Home"
             onClick={(e) => {
               e.preventDefault();
-              window.scrollTo({top: 0, behavior: 'smooth'});
+              scrollToSection('top');
             }}
             className="flex items-center whitespace-nowrap shrink-0 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B34D6]"
           >
@@ -399,6 +505,15 @@ export default function App() {
       </header>
 
       <main id="top">
+        {activeSubpage ? (
+          <SolutionSubpageView
+            data={activeSubpage}
+            onNavigateHub={(sec) => scrollToSection(sec ?? 'top')}
+            onNavigateSubpage={navigateToSubpage}
+            onRequestDemo={handleRequestDemo}
+          />
+        ) : (
+          <>
         {/* Hero Section: Royal Cobalt to Midnight Navy brand signature + Command Center backdrop */}
         <section className="relative overflow-hidden bg-[#040B29] text-white">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -481,7 +596,7 @@ export default function App() {
                       alt="GSD Technologies — Digital Transformation Experts official logo"
                       referrerPolicy="no-referrer"
                       onError={() => setLogoFailed(true)}
-                      className="h-28 w-full object-cover object-center sm:h-32"
+                      className="block h-auto w-full object-contain"
                     />
                   ) : (
                     <div className="flex h-28 flex-col items-center justify-center px-6 text-center sm:h-32">
@@ -682,6 +797,7 @@ export default function App() {
               return (
                 <motion.article
                   key={service.id}
+                  id={`ecosystem-${service.id}`}
                   initial={{opacity: 0, y: 24}}
                   whileInView={{opacity: 1, y: 0}}
                   viewport={VIEWPORT_ONCE}
@@ -1586,6 +1702,53 @@ export default function App() {
                 </div>
               </div>
             </motion.div>
+
+            {/* Persona-Targeted Solution Sub-Pages Directory */}
+            <div className="mt-14 border-t border-slate-200 pt-10">
+              <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+                <div>
+                  <p className="text-xs font-medium text-[#0B34D6]">
+                    Dedicated Architecture Pages by Role
+                  </p>
+                  <h3 className="mt-1 font-display text-xl font-bold text-[#040B29] sm:text-2xl">
+                    Explore tailored AI blueprints for your operational mandate
+                  </h3>
+                </div>
+                <span className="text-xs text-slate-500">
+                  4 dedicated solution pages · Egypt &amp; MEA
+                </span>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {SOLUTION_SUBPAGES.map((sub) => (
+                  <a
+                    key={sub.id}
+                    href={sub.slug}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigateToSubpage(sub.slug);
+                    }}
+                    className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-[#F8FAFC] p-5 transition-colors hover:border-[#0B34D6] hover:bg-white"
+                  >
+                    <div>
+                      <div className="text-xs font-medium text-[#0B34D6]">
+                        {sub.personaBadge}
+                      </div>
+                      <h4 className="mt-1.5 font-display text-base font-bold text-[#040B29] group-hover:text-[#0B34D6]">
+                        {sub.shortTitle}
+                      </h4>
+                      <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                        {sub.hubSummary}
+                      </p>
+                    </div>
+                    <div className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[#040B29] group-hover:text-[#0B34D6]">
+                      <span>Open Solution Page</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -1653,14 +1816,14 @@ export default function App() {
           >
             <div className="flex flex-col justify-between gap-6 border-b border-white/15 pb-8 lg:flex-row lg:items-end">
               <div>
-                <p className="text-xs font-medium text-[#BDE5F6]">Field Deployments</p>
+                <p className="text-xs font-medium text-[#BDE5F6]">Field Deployments &amp; POC Proof</p>
                 <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl [text-wrap:balance]">
-                  Verified success stories across Egyptian industry
+                  Verified ROI across 5 Egyptian industry deployments
                 </h2>
               </div>
               <p className="max-w-md text-sm leading-relaxed text-slate-300">
-                Real production environments—from high-heat cement kilns and overhead crane bays to
-                gas transport fleets and multi-branch fashion retail.
+                Real production environments—from cement kilns, heavy manufacturing, and mechanical
+                workshops to gas transport fleets and multi-branch fashion retail.
               </p>
             </div>
 
@@ -1669,26 +1832,52 @@ export default function App() {
               <div className="flex min-w-0 flex-col gap-3 lg:col-span-5">
                 {SUCCESS_STORIES.map((story) => {
                   const isCurrent = story.id === activeStory.id;
+                  const StoryIcon = STORY_ICONS[story.iconKey];
                   return (
-                    <button
+                    <div
                       key={story.id}
-                      type="button"
-                      onClick={() => setSelectedStoryId(story.id)}
-                      className={`min-h-[44px] rounded-xl border p-4 text-left transition-colors duration-150 sm:p-5 ${
+                      className={`rounded-xl border p-4 transition-colors duration-150 sm:p-5 ${
                         isCurrent
                           ? 'border-[#BDE5F6]/50 bg-[#08164D]'
                           : 'border-white/10 bg-white/5 hover:border-white/25 hover:bg-white/10'
                       }`}
                     >
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-[#BDE5F6]">
-                        <span>{story.sector}</span>
-                        <span aria-hidden="true">·</span>
-                        <span className="text-slate-300">{story.location}</span>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedStoryId(story.id)}
+                        className="w-full text-left"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-white/15 bg-white/5 text-[#BDE5F6]">
+                            <StoryIcon className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-[#BDE5F6]">
+                              <span>{story.sector}</span>
+                              <span aria-hidden="true">·</span>
+                              <span className="text-slate-300">{story.location}</span>
+                            </div>
+                            <div className="mt-1.5 font-display text-base font-semibold text-white">
+                              {story.title}
+                            </div>
+                            <div className="mt-2 font-mono text-[11px] text-[#BDE5F6] tabular-nums">
+                              {story.roiMetric}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+
+                      <div className="mt-3 flex items-center justify-end border-t border-white/10 pt-2.5">
+                        <button
+                          type="button"
+                          onClick={() => handleRequestDemo(`POC Request: ${story.sector}`)}
+                          className="inline-flex items-center gap-1 text-xs font-medium text-[#BDE5F6] transition-colors hover:text-white hover:underline"
+                        >
+                          <span>Book POC for {story.sector}</span>
+                          <ArrowRight className="h-3 w-3" />
+                        </button>
                       </div>
-                      <div className="mt-2 font-display text-base font-semibold text-white">
-                        {story.title}
-                      </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -1703,10 +1892,15 @@ export default function App() {
                     className="h-full w-full object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#08164D] via-[#08164D]/35 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-2 px-5 pb-4 text-xs text-[#BDE5F6] sm:px-9">
-                    <span>{activeStory.sector}</span>
-                    <span aria-hidden="true">·</span>
-                    <span>{activeStory.location}</span>
+                  <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-center justify-between gap-2 px-5 pb-4 text-xs text-[#BDE5F6] sm:px-9">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span>{activeStory.sector}</span>
+                      <span aria-hidden="true">·</span>
+                      <span>{activeStory.location}</span>
+                    </div>
+                    <span className="font-mono text-[#BDE5F6] tabular-nums">
+                      {activeStory.roiMetric}
+                    </span>
                   </div>
                 </div>
 
@@ -1741,10 +1935,10 @@ export default function App() {
                     <p className="max-w-lg text-sm font-medium text-white">{activeStory.outcome}</p>
                     <button
                       type="button"
-                      onClick={() => handleRequestDemo(`Deployment Inquiry: ${activeStory.sector}`)}
+                      onClick={() => handleRequestDemo(`POC Request: ${activeStory.sector}`)}
                       className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md bg-white px-4 py-2 text-xs font-semibold text-[#040B29] whitespace-nowrap shrink-0 transition-colors hover:bg-[#BDE5F6]"
                     >
-                      <span>Book Architecture Review</span>
+                      <span>Book a POC for This Use Case</span>
                       <ArrowRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -1764,14 +1958,16 @@ export default function App() {
           >
             <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-8 md:flex-row md:items-end">
               <div>
-                <p className="text-xs font-medium text-[#0B34D6]">Technology Partnerships</p>
+                <p className="text-xs font-medium text-[#0B34D6]">
+                  Authorized Technology Partnerships · Egypt &amp; MEA
+                </p>
                 <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl">
                   Global AI &amp; software leaders, deployed locally
                 </h2>
               </div>
               <p className="max-w-md text-sm text-slate-600">
-                Full local engineering, architecture, and regional support across Egypt and the Middle
-                East &amp; Africa.
+                Authorized regional integration, local server engineering, and bilingual support
+                across Egypt and the Middle East &amp; Africa.
               </p>
             </div>
 
@@ -1796,11 +1992,27 @@ export default function App() {
                     </h3>
                     <p className="mt-2 text-sm leading-relaxed text-slate-600">{partner.summary}</p>
                   </div>
+
+                  <div className="mt-5 border-t border-slate-100 pt-4">
+                    <a
+                      href={`/gsd-services-ecosystem#ecosystem-${partner.ecosystemServiceId}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        scrollToSection(`ecosystem-${partner.ecosystemServiceId}`);
+                      }}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B34D6] transition-colors hover:text-[#040B29] hover:underline"
+                    >
+                      <span>{partner.ecosystemCta}</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </a>
+                  </div>
                 </div>
               ))}
             </div>
           </motion.div>
         </section>
+          </>
+        )}
 
         {/* Interactive Contact & Request a Demo Section */}
         <section id="contact" className="border-t border-slate-200 bg-white py-14 sm:py-20 lg:py-24">
@@ -1818,7 +2030,7 @@ export default function App() {
                     src="/assets/aistudio/logo-GSD_a8de37a5.jpg"
                     alt="GSD Technologies Egypt — Digital Transformation Experts"
                     fallbackTitle="GSD Technologies Egypt"
-                    className="h-24 w-full object-cover object-center"
+                    className="block h-auto w-full object-contain"
                   />
                 </div>
                 <p className="text-xs font-medium text-[#0B34D6]">
@@ -2043,18 +2255,14 @@ export default function App() {
                             </option>
                           );
                         })}
-                        <option value="Deployment Inquiry: Cement & Heavy Industry">
-                          Deployment Inquiry: Cement &amp; Heavy Industry
-                        </option>
-                        <option value="Deployment Inquiry: Heavy Manufacturing">
-                          Deployment Inquiry: Heavy Manufacturing
-                        </option>
-                        <option value="Deployment Inquiry: Oil, Gas & Fleet Logistics">
-                          Deployment Inquiry: Oil, Gas &amp; Fleet Logistics
-                        </option>
-                        <option value="Deployment Inquiry: Multi-Branch Fashion Retail">
-                          Deployment Inquiry: Multi-Branch Fashion Retail
-                        </option>
+                        {SUCCESS_STORIES.map((story) => {
+                          const optionValue = `POC Request: ${story.sector}`;
+                          return (
+                            <option key={story.id} value={optionValue}>
+                              {optionValue}
+                            </option>
+                          );
+                        })}
                       </select>
                     </div>
 
@@ -2099,7 +2307,7 @@ export default function App() {
       <footer className="bg-[#040B29] text-slate-300">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8">
           <div className="grid grid-cols-1 gap-10 border-b border-white/10 pb-10 md:grid-cols-12">
-            <div className="md:col-span-5">
+            <div className="md:col-span-4">
               <div className="font-display text-lg font-bold text-white">GSD Technologies Egypt</div>
               <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-400">
                 Digital Transformation Experts. Turning passive surveillance and operational data
@@ -2107,9 +2315,9 @@ export default function App() {
               </p>
             </div>
 
-            <div className="md:col-span-4">
+            <div className="md:col-span-2">
               <div className="text-xs font-semibold text-white">Navigation</div>
-              <ul className="mt-3 grid grid-cols-2 gap-y-2.5 text-sm">
+              <ul className="mt-3 space-y-2 text-sm">
                 {[
                   {label: 'About GSD', id: 'about'},
                   {label: 'Services Ecosystem', id: 'ecosystem'},
@@ -2129,6 +2337,26 @@ export default function App() {
                       className="inline-block py-0.5 text-slate-400 transition-colors hover:text-white"
                     >
                       {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="md:col-span-3">
+              <div className="text-xs font-semibold text-white">Solution Pages</div>
+              <ul className="mt-3 space-y-2 text-sm">
+                {SOLUTION_SUBPAGES.map((sub) => (
+                  <li key={sub.id}>
+                    <a
+                      href={sub.slug}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigateToSubpage(sub.slug);
+                      }}
+                      className="inline-block py-0.5 text-slate-400 transition-colors hover:text-white"
+                    >
+                      {sub.shortTitle}
                     </a>
                   </li>
                 ))}

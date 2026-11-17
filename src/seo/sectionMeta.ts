@@ -1,3 +1,9 @@
+export type SolutionSubpageId =
+  | 'sol-industrial-hse'
+  | 'sol-retail-malls-compounds'
+  | 'sol-fleet-dms'
+  | 'sol-decision-intelligence';
+
 export type SectionId =
   | 'top'
   | 'ecosystem'
@@ -6,7 +12,17 @@ export type SectionId =
   | 'about'
   | 'success-stories'
   | 'partners'
-  | 'contact';
+  | 'contact'
+  | SolutionSubpageId;
+
+export function isSolutionSubpageId(id: string): id is SolutionSubpageId {
+  return (
+    id === 'sol-industrial-hse' ||
+    id === 'sol-retail-malls-compounds' ||
+    id === 'sol-fleet-dms' ||
+    id === 'sol-decision-intelligence'
+  );
+}
 
 export interface SectionSeoConfig {
   id: SectionId;
@@ -127,6 +143,58 @@ export const SECTION_SEO_LIST: SectionSeoConfig[] = [
     changefreq: 'monthly',
     priority: '0.8',
   },
+  {
+    id: 'sol-industrial-hse',
+    slug: '/solutions/industrial-hse-video-analytics',
+    title: 'Industrial HSE AI Cameras & Plant Safety Egypt | GSD',
+    description:
+      'Carrot Vision AI for HSE & Plant Managers: 24/7 PPE compliance, early fire & smoke, 153.8°C thermal RDF alerts, crane exclusion zones & PLC triggers on existing CCTV.',
+    keywords:
+      'Industrial HSE AI camera Egypt, PPE detection Egypt, Carrot Vision AI, overhead crane safety AI, fire and smoke video analytics, thermal RDF hotspot monitoring, PLC safety interlocks, plant safety computer vision',
+    ogImage: '/src/assets/images/solution_carrot_vision_1794865969929.jpg',
+    ogImageAlt: 'Carrot Vision industrial HSE AI monitoring PPE compliance and overhead cranes',
+    changefreq: 'weekly',
+    priority: '0.95',
+  },
+  {
+    id: 'sol-retail-malls-compounds',
+    slug: '/solutions/retail-malls-smart-compounds',
+    title: 'Retail AI, Mall Footfall Counting & LPR Gates Egypt | GSD',
+    description:
+      'POS-synced True Conversion Rate, footfall heatmaps, Smart Employee Attendance & automated LPR compound gates powered by Retail Command, Eocortex & Aipix.',
+    keywords:
+      'Mall footfall counting Egypt, LPR gate automation Egypt, Virtual Retail Manager, retail POS conversion AI, Smart Employee Attendance HR, Aipix cloud surveillance, Eocortex retail analytics, smart compound security',
+    ogImage: '/src/assets/images/solutions_smart_facility_1794852240500.jpg',
+    ogImageAlt: 'Commercial mall and smart compound monitored by AI counting and LPR cameras',
+    changefreq: 'weekly',
+    priority: '0.95',
+  },
+  {
+    id: 'sol-fleet-dms',
+    slug: '/solutions/fleet-driver-monitoring-dms',
+    title: 'AI Fleet Driver Monitoring (DMS) & ADAS Dashcams | GSD',
+    description:
+      'In-cabin AI driver cameras detecting microsleep fatigue, mobile phone use & seatbelt gaps paired with forward ADAS collision alerts via Howen & AIS.',
+    keywords:
+      'AI driver camera Egypt, fleet DMS ADAS Egypt, truck driver fatigue detection, mobile phone dashcam AI, Howen MDVR Egypt, commercial fleet safety AI, forward collision warning truck',
+    ogImage: '/src/assets/images/stories_cement_fleet_1794852242743.jpg',
+    ogImageAlt: 'Commercial heavy truck logistics fleet protected by in-cabin DMS and ADAS cameras',
+    changefreq: 'weekly',
+    priority: '0.95',
+  },
+  {
+    id: 'sol-decision-intelligence',
+    slug: '/solutions/decision-intelligence-makkook',
+    title: 'Decision Intelligence & Supply Chain AI (Makkook DIOS) | GSD',
+    description:
+      '60+ optimization engines for COOs & Supply Chain Heads: automated production line scheduling, multi-echelon safety stock, logistics routing & retail margin AI.',
+    keywords:
+      'Makkook DIOS Egypt, supply chain optimization AI, production scheduling optimization, logistics route sequencing AI, 98% on-time delivery, decision intelligence OS MEA',
+    ogImage: '/src/assets/images/solution_makkook_dios_1794865969666.jpg',
+    ogImageAlt: 'Makkook DIOS algorithmic optimization across production lines and logistics dispatch',
+    changefreq: 'weekly',
+    priority: '0.95',
+  },
 ];
 
 export const SECTION_SEO_BY_ID: Record<SectionId, SectionSeoConfig> = SECTION_SEO_LIST.reduce(
@@ -139,6 +207,9 @@ export const SECTION_SEO_BY_ID: Record<SectionId, SectionSeoConfig> = SECTION_SE
 
 export function getSectionByPathname(pathname: string): SectionId | null {
   const normalized = pathname.replace(/\/+$/, '') || '/';
+  if (normalized === '/our-partners-1') {
+    return 'partners';
+  }
   const match = SECTION_SEO_LIST.find((item) => item.slug === normalized);
   return match ? match.id : null;
 }

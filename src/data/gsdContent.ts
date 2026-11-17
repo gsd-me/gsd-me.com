@@ -25,6 +25,8 @@ export interface SuccessStory {
   id: string;
   sector: string;
   location: string;
+  roiMetric: string;
+  iconKey: 'cement' | 'manufacturing' | 'workshop' | 'fleet' | 'retail';
   title: string;
   challenge: string;
   solutionPoints: string[];
@@ -36,6 +38,8 @@ export interface PartnerItem {
   domain: string;
   summary: string;
   logoSrc: string;
+  ecosystemServiceId: string;
+  ecosystemCta: string;
 }
 
 export interface CustomerItem {
@@ -877,57 +881,81 @@ export const SUCCESS_STORIES: SuccessStory[] = [
     id: 'cement-group',
     sector: 'Cement & Heavy Industry',
     location: 'Kattameya, Suez & Helwan · Egypt',
-    title: 'Plant-wide QHSE AI, dusty packing line PPE & RDF thermal monitoring across three cement factories',
+    roiMetric: '3 Plants Automated · 153.8°C Thermal Guard · 0 Camera Replacement',
+    iconKey: 'cement',
+    title: 'How a Global Cement Group Automated HSE Across 3 Egyptian Plants',
     challenge:
-      'Rolled out across three high-heat cement facilities operated by Heidelberg Materials in Egypt—requiring 24/7 oversight of dusty packing lines (Packer M-C 4), RDF fuel storage piles, restricted zones, and kilns.',
+      'Rolled out across three high-heat cement facilities operated by Heidelberg Materials in Egypt—requiring 24/7 oversight of dusty packing lines (Packer M-C 4), RDF fuel storage piles, restricted zones, and kilns without replacing existing CCTV.',
     solutionPoints: [
       'PPE helmet and vest verification on dusty cement packing lines (Packer M-C 4) with zero camera replacement',
       'Thermal camera RDF fuel pile monitoring (Suez-Th3-Thermal) catching 153.8°C hotspots vs. 16.6°C ambient baseline before ignition',
       'Restricted zone boundary alerts, early fire/smoke plume detection, and material segment counting on local on-site servers',
     ],
-    outcome: 'Unified 100% on-site QHSE AI backbone delivering group-level HSE KPIs and RCA visibility across all three plants.',
+    outcome: 'Unified 100% on-site QHSE AI backbone delivering group-level HSE KPIs and visual RCA visibility across all three plants.',
   },
   {
     id: 'heavy-manufacturing',
     sector: 'Heavy Manufacturing',
-    location: 'Plant Floor, Boiler & Pump Hall · Egypt',
-    title: 'Overhead crane, boiler red-zone, fire/smoke & Face ID violation tracking on existing CCTV',
+    location: 'Plant Floor, Boiler & Crane Bays · Egypt',
+    roiMetric: '24/7 Crane & Boiler AI · Face ID Evidence Logs',
+    iconKey: 'manufacturing',
+    title: 'How Heavy Manufacturers Secured Overhead Cranes & Boiler Red Zones on Existing CCTV',
     challenge:
-      'Overhead cranes moving heavy loads above workers alongside boiler areas, pump halls, and maintenance workshops where manual patrols could not ensure continuous 24/7 compliance.',
+      'Overhead cranes moving heavy loads above operators alongside boiler rooms and high-pressure manifolds where intermittent manual patrols could not ensure continuous 24/7 compliance.',
     solutionPoints: [
-      'Hanging crane load alerts, boiler area digital boundary geofencing, and Camera BR2 perimeter trespassing protection',
-      'Early fire and smoke plume detection across open work yards, pump & motor halls, and maintenance workshops',
-      'PPE violation alerts paired with worker Face ID matching and Events Module assignment to safety officers',
+      'Hanging crane load alerts, boiler area digital boundary geofencing, and perimeter BR2 trespassing protection',
+      'Early fire and smoke plume detection across open work yards and high-risk production corridors',
+      'Automated PPE violation alerts paired with worker Face ID matching and Events Module CAPA assignment',
     ],
-    outcome: 'Shifted safety operations from reactive manual checks to automated evidence-backed LTIFR/TRIR reduction.',
+    outcome: 'Shifted plant safety from reactive manual spot checks to automated, evidence-backed LTIFR and TRIR reduction.',
+  },
+  {
+    id: 'mechanical-workshops',
+    sector: 'Mechanical & Maintenance Workshops',
+    location: 'Maintenance Bays & Pump Halls · Egypt',
+    roiMetric: 'Instant Flame & Smoke Alerts · 100% On-Site Processing',
+    iconKey: 'workshop',
+    title: 'Cutting Workshop Fire, Smoke & PPE Hazards Without Adding Guard Headcount',
+    challenge:
+      'Industrial pump halls, fabrication shops, and welding maintenance bays face rapid smoke plumes, spark-ignition hazards, lone-worker falls, and inconsistent glove/goggle usage across shifts.',
+    solutionPoints: [
+      'Sub-second optical fire and smoke plume detection across enclosed pump & motor halls and open maintenance yards',
+      'PPE gear checks (hard hats, goggles, gloves, high-vis vests) plus Man-Down fall alerts and restricted smoking enforcement',
+      'Direct Email, WhatsApp, and control-room alerts routing tagged evidence snapshots straight to shift HSE supervisors',
+    ],
+    outcome: 'Eliminated blind spots across high-risk maintenance shifts while keeping sensitive plant video 100% inside local servers.',
   },
   {
     id: 'gas-fleet',
     sector: 'Oil, Gas & Fleet Logistics',
-    location: 'Commercial Truck Fleet · Egypt',
-    title: 'In-cab DMS & ADAS collision prevention for a leading gas company fleet',
+    location: 'Commercial Hazmat Truck Fleet · Egypt',
+    roiMetric: '3-Channel Cab + Road AI · Real-Time Driver Intervention',
+    iconKey: 'fleet',
+    title: 'Preventing Fatigue & Distraction Accidents Across a National Gas Transport Fleet',
     challenge:
-      'Preventing road incidents caused by driver fatigue, distraction, or phone glances before they become safety reports.',
+      'Eliminating highway collision risks caused by driver microsleep, eye closure, handheld phone use, or unsafe following distances before incidents become safety liabilities.',
     solutionPoints: [
-      'Driver Monitoring System (DMS) detecting eye-closing, yawning, phone use, smoking, and absence',
-      'ADAS forward-collision, lane-departure, headway distance, and pedestrian risk warnings',
-      'Rugged 3-channel video (front, cab, external) integrated with live fleet telemetry',
+      'In-cabin Driver Monitoring System (DMS) detecting eye-closing, yawning, phone use, smoking, and biometric driver Face ID',
+      'Forward-facing ADAS co-pilot issuing Forward Collision Warning (FCW), lane-departure drift, and pedestrian alerts',
+      'Rugged 3-channel MDVR telemetry syncing cab, front-road, and exterior feeds to central fleet HSE dispatch',
     ],
-    outcome: 'Real-time in-cab risk intervention integrated directly into the client’s existing fleet platform.',
+    outcome: 'Delivered instant audible in-cab intervention integrated directly into the operator’s existing fleet tracking platform.',
   },
   {
     id: 'fashion-retail',
     sector: 'Multi-Branch Fashion Retail',
-    location: 'Retail Network · Egypt',
-    title: 'Staff-filtered footfall & demographic intelligence across store branches',
+    location: 'National Store Network · Egypt',
+    roiMetric: 'Staff-Filtered True Footfall · Automated POS & Branch Exports',
+    iconKey: 'retail',
+    title: 'How a Multi-Branch Fashion Retailer Isolated True Customer Footfall & Conversion',
     challenge:
-      'Multi-branch fashion retailer needed accurate daily visitor counts, age/gender splits, and clean conversion data without employees inflating store traffic.',
+      'Multi-branch fashion stores needed verified daily shopper counts, age/gender demographics, and clean conversion ratios without store associates inflating door traffic.',
     solutionPoints: [
-      'Face recognition automatically excluding staff members from customer footfall totals',
-      'Age and gender breakdown per visit aggregated into a unified multi-branch dashboard',
-      'Automated CSV, Excel, and PDF exports integrated into existing management reporting',
+      'Face recognition automatically subtracting on-duty retail staff from entrance and exit customer counts',
+      'Age, gender, and repeat-visit breakdown aggregated across branches on a unified Virtual Retail Manager console',
+      'One-click CSV, Excel, and PDF reporting paired with automated multi-branch HR attendance verification',
     ],
-    outcome: 'Turned existing security cameras into a zero-disruption retail intelligence engine across all branches.',
+    outcome: 'Converted existing store CCTV into a zero-disruption retail analytics and attendance platform across all locations.',
   },
 ];
 
@@ -935,55 +963,82 @@ export const PARTNERS: PartnerItem[] = [
   {
     name: 'Carrot Vision',
     domain: 'Industrial QHSE AI · 100% On-Site',
-    summary: 'The leading CCTV-based QHSE management system with 14+ modules and 18+ safety checks for PPE, coveralls, falls, forklifts, fire/smoke, thermal hotspots, and PTW/LOTO compliance.',
+    summary:
+      'GSD Technologies is an authorized regional integrator for Carrot Vision across Egypt and MEA industrial plants. We deploy and engineer its 18+ on-site CCTV safety checks—including PPE, fire/smoke, thermal RDF hotspots, forklifts, cranes, and PLC interlocks—on existing factory cameras.',
     logoSrc: '/assets/partners/carrot-vision.png',
+    ecosystemServiceId: 'carrot-vision',
+    ecosystemCta: 'Explore Carrot Vision in Ecosystem',
   },
   {
     name: 'Eocortex',
-    domain: 'Open-Platform VMS',
-    summary: 'Hardware-agnostic video management and 20+ native AI analytics modules deployed across 85+ countries.',
+    domain: 'Open-Platform Video Analytics VMS',
+    summary:
+      'As an official Eocortex system partner in Egypt and MEA, GSD delivers hardware-agnostic computer vision across 99% of ONVIF IP cameras. Our engineering team integrates Eocortex’s 20+ native AI modules—spanning face recognition, LPR barriers, crowd analytics, and safety alerts—for enterprise control rooms.',
     logoSrc: '/assets/partners/eocortex.png',
+    ecosystemServiceId: 'eocortex',
+    ecosystemCta: 'Explore Eocortex Platform in Ecosystem',
   },
   {
     name: 'Makkook',
-    domain: 'Decision Intelligence',
-    summary: '60+ algorithmic optimization engines (DIOS) optimizing production, supply chain, fleet logistics, and retail.',
+    domain: 'Decision Intelligence OS (DIOS)',
+    summary:
+      'GSD partners with Makkook to deliver algorithmic decision intelligence across Egyptian and MEA manufacturing, supply chain, and retail enterprises. We configure Makkook’s 60+ optimization engines to automate line scheduling, safety stock allocation, and 98%+ on-time multi-drop fleet dispatch.',
     logoSrc: '/assets/partners/makkook.png',
+    ecosystemServiceId: 'makkook-dios',
+    ecosystemCta: 'Explore Makkook DIOS in Ecosystem',
   },
   {
     name: 'Aipix',
-    domain: 'Cloud VSaaS & Intercom',
-    summary: 'White-label cloud video surveillance, smart biometric intercom, and telecom VAS billing integration.',
+    domain: 'Cloud VSaaS & Smart Intercom',
+    summary:
+      'GSD serves as an authorized deployment partner for Aipix Cloud VSaaS across telecom operators, ISPs, and commercial property developers in MEA. We implement white-label cloud video recording, native billing integration, biometric smart intercoms, and edge AI analytics with zero NVR hardware.',
     logoSrc: '/assets/partners/aipix.png',
+    ecosystemServiceId: 'aipix',
+    ecosystemCta: 'Explore Aipix Suite in Ecosystem',
   },
   {
     name: 'AIS',
     domain: 'Artificial Intelligence Systems',
-    summary: 'Specialized edge AI vision and smart infrastructure systems engineered for enterprise industrial deployments.',
+    summary:
+      'As an authorized regional partner for AIS, GSD embeds edge-AI computer vision algorithms into high-reliability industrial and commercial fleet deployments. Our Cairo engineers calibrate AIS driver-monitoring and facility-safety models for demanding regional lighting and operating conditions.',
     logoSrc: '/assets/partners/ais.png',
+    ecosystemServiceId: 'vehicle-ai',
+    ecosystemCta: 'Explore Vehicle & Edge AI in Ecosystem',
   },
   {
     name: 'Howen',
-    domain: 'Vehicle AI & Mobile DVR',
-    summary: 'Rugged commercial fleet MDVRs, AI dashcams, DMS fatigue monitors, and ADAS collision-prevention hardware.',
+    domain: 'Vehicle AI & Mobile DVR Hardware',
+    summary:
+      'GSD is an authorized Egypt & MEA solution partner for Howen’s rugged commercial fleet hardware and in-cab AI dashcams. We supply, install, and integrate Howen 3-channel MDVRs with DMS fatigue alerts and forward ADAS collision prevention for oil, gas, and logistics fleets.',
     logoSrc: '/assets/partners/howen.png',
+    ecosystemServiceId: 'vehicle-ai',
+    ecosystemCta: 'Explore DMS & ADAS Fleet AI in Ecosystem',
   },
   {
     name: 'Claromentis',
-    domain: 'Digital Workplace & DocAi',
-    summary: 'ISO 27001:2022 & HIPAA-compliant AI intranet, no-code workflow automation, and e-learning LMS.',
+    domain: 'Digital Workplace & Document AI',
+    summary:
+      'GSD delivers Claromentis across Egypt and MEA as an authorized enterprise digital workplace and workflow automation partner. Combined with GSD-DocAi, we deploy ISO 27001:2022 & HIPAA-aligned intranets, SLA document approvals, and compliance portals in four weeks.',
     logoSrc: '/assets/partners/claromentis.jpg',
+    ecosystemServiceId: 'gsd-docai',
+    ecosystemCta: 'Explore GSD-DocAi & Workplace in Ecosystem',
   },
   {
     name: 'Augnito',
-    domain: 'Healthcare Voice AI',
-    summary: 'Next-generation clinical speech recognition and voice AI built for hospitals and healthcare teams.',
+    domain: 'Healthcare Clinical Voice AI',
+    summary:
+      'GSD is an authorized regional implementation partner for Augnito clinical speech recognition across Egyptian hospitals and medical groups. We integrate real-time medical voice-to-EHR reporting directly into radiology, ICU, and outpatient diagnostic workflows.',
     logoSrc: '/assets/partners/augnito.png',
+    ecosystemServiceId: 'gsd-docai',
+    ecosystemCta: 'Explore Healthcare & DocAi in Ecosystem',
   },
   {
     name: 'TSPlus',
-    domain: 'Secure Remote Access',
-    summary: 'Enterprise remote desktop, application publishing, and cybersecurity access infrastructure.',
+    domain: 'Secure Remote Access & App Publishing',
+    summary:
+      'As an authorized TSPlus partner in Egypt and MEA, GSD secures remote application delivery and encrypted terminal access for multi-branch enterprises. We pair TSPlus with GSD-DocAi and Smart Attendance servers so branch teams work safely from private on-premise infrastructure.',
     logoSrc: '/assets/partners/tsplus.png',
+    ecosystemServiceId: 'gsd-docai',
+    ecosystemCta: 'Explore Workplace & Remote Access in Ecosystem',
   },
 ];

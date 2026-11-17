@@ -43,7 +43,20 @@ function upsertSectionJsonLd(
       item: `${origin}/`,
     },
   ];
-  if (config.slug !== '/') {
+  if (config.slug.startsWith('/solutions/')) {
+    breadcrumbs.push({
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Our Solutions',
+      item: `${origin}/our-solutions`,
+    });
+    breadcrumbs.push({
+      '@type': 'ListItem',
+      position: 3,
+      name: config.title,
+      item: canonicalUrl,
+    });
+  } else if (config.slug !== '/') {
     breadcrumbs.push({
       '@type': 'ListItem',
       position: 2,
