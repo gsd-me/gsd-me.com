@@ -28,6 +28,7 @@ import {
 } from './data/gsdContent';
 import {getSectionByPathname, SECTION_SEO_BY_ID, SectionId} from './seo/sectionMeta';
 import {useSectionSeo} from './seo/useSectionSeo';
+import {CarrotVisionDashboardPreview} from './components/CarrotVisionDashboardPreview';
 
 const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const VIEWPORT_ONCE = {once: true, amount: 0.12} as const;
@@ -1105,6 +1106,8 @@ export default function App() {
                   </div>
                 </div>
               )}
+
+              <CarrotVisionDashboardPreview />
             </div>
               </>
             )}
