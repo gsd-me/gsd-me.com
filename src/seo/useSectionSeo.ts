@@ -1,5 +1,7 @@
 import {useEffect} from 'react';
 import {SECTION_SEO_BY_ID, SectionId} from './sectionMeta';
+import {SECTION_SEO_AR_BY_ID} from './sectionMetaAr';
+import type {Language} from '../i18n/LanguageContext';
 
 function upsertMetaTag(attrName: 'name' | 'property', attrValue: string, content: string) {
   let tag = document.head.querySelector<HTMLMetaElement>(`meta[${attrName}="${attrValue}"]`);
@@ -22,7 +24,9 @@ function upsertCanonicalLink(href: string) {
 }
 
 function upsertSectionJsonLd(
-  config: (typeof SECTION_SEO_BY_ID)[SectionId],
+  slug: string,
+  meta: {title: string; description: string; keywords: string},
+  lang: Language,
   canonicalUrl: string,
   absoluteImageUrl: string,
   origin: string,
@@ -39,28 +43,28 @@ function upsertSectionJsonLd(
     {
       '@type': 'ListItem',
       position: 1,
-      name: 'GSD Technologies Egypt',
+      name: lang === 'ar' ? 'GSD Technologies مصر' : 'GSD Technologies Egypt',
       item: `${origin}/`,
     },
   ];
-  if (config.slug.startsWith('/solutions/')) {
+  if (slug.startsWith('/solutions/')) {
     breadcrumbs.push({
       '@type': 'ListItem',
       position: 2,
-      name: 'Our Solutions',
+      name: lang === 'ar' ? 'الحلول' : 'Our Solutions',
       item: `${origin}/our-solutions`,
     });
     breadcrumbs.push({
       '@type': 'ListItem',
       position: 3,
-      name: config.title,
+      name: meta.title,
       item: canonicalUrl,
     });
-  } else if (config.slug !== '/') {
+  } else if (slug !== '/') {
     breadcrumbs.push({
       '@type': 'ListItem',
       position: 2,
-      name: config.title,
+      name: meta.title,
       item: canonicalUrl,
     });
   }
@@ -70,10 +74,10 @@ function upsertSectionJsonLd(
     '@type': 'WebPage',
     '@id': `${canonicalUrl}#webpage`,
     url: canonicalUrl,
-    name: config.title,
-    description: config.description,
-    keywords: config.keywords,
-    inLanguage: 'en',
+    name: meta.title,
+    description: meta.description,
+    keywords: meta.keywords,
+    inLanguage: lang,
     primaryImageOfPage: {
       '@type': 'ImageObject',
       url: absoluteImageUrl,
@@ -85,42 +89,67 @@ function upsertSectionJsonLd(
   });
 }
 
-export function useSectionSeo(activeSectionId: SectionId) {
+export function useSectionSeo(activeSectionId: SectionId, lang: Language = 'en') {
   useEffect(() => {
-    const config = SECTION_SEO_BY_ID[activeSectionId] ?? SECTION_SEO_BY_ID.top;
+    const baseConfig = SECTION_SEO_BY_ID[activeSectionId] ?? SECTION_SEO_BY_ID.top;
+    const arConfig = SECTION_SEO_AR_BY_ID[activeSectionId] ?? SECTION_SEO_AR_BY_ID.top;
+    const activeMeta =
+      lang === 'ar'
+        ? {
+            title: arConfig.title,
+            description: arConfig.description,
+            keywords: arConfig.keywords,
+            ogImageAlt: arConfig.ogImageAlt,
+          }
+        : {
+            title: baseConfig.title,
+            description: baseConfig.description,
+            keywords: baseConfig.keywords,
+            ogImageAlt: baseConfig.ogImageAlt,
+          };
+
     const origin = window.location.origin;
     const canonicalUrl =
-      config.slug === '/'
-        ? `${origin}/`
-        : `${origin}${config.slug}`;
-    const absoluteImageUrl = `${origin}${config.ogImage}`;
+      baseConfig.slug === '/' ? `${origin}/` : `${origin}${baseConfig.slug}`;
+    const absoluteImageUrl = `${origin}${baseConfig.ogImage}`;
 
-    document.title = config.title;
+    document.title = activeMeta.title;
     upsertCanonicalLink(canonicalUrl);
 
     // Standard SEO meta tags
-    upsertMetaTag('name', 'description', config.description);
-    upsertMetaTag('name', 'keywords', config.keywords);
+    upsertMetaTag('name', 'description', activeMeta.description);
+    upsertMetaTag('name', 'keywords', activeMeta.keywords);
 
     // OpenGraph tags per active section
     upsertMetaTag('property', 'og:type', 'website');
-    upsertMetaTag('property', 'og:site_name', 'GSD Technologies Egypt');
-    upsertMetaTag('property', 'og:locale', 'en_EG');
-    upsertMetaTag('property', 'og:title', config.title);
-    upsertMetaTag('property', 'og:description', config.description);
+    upsertMetaTag(
+      'property',
+      'og:site_name',
+      lang === 'ar' ? 'شركة GSD Technologies مصر' : 'GSD Technologies Egypt',
+    );
+    upsertMetaTag('property', 'og:locale', lang === 'ar' ? 'ar_EG' : 'en_EG');
+    upsertMetaTag('property', 'og:title', activeMeta.title);
+    upsertMetaTag('property', 'og:description', activeMeta.description);
     upsertMetaTag('property', 'og:url', canonicalUrl);
     upsertMetaTag('property', 'og:image', absoluteImageUrl);
-    upsertMetaTag('property', 'og:image:alt', config.ogImageAlt);
+    upsertMetaTag('property', 'og:image:alt', activeMeta.ogImageAlt);
 
     // Twitter / X card tags per active section
     upsertMetaTag('name', 'twitter:card', 'summary_large_image');
-    upsertMetaTag('name', 'twitter:title', config.title);
-    upsertMetaTag('name', 'twitter:description', config.description);
+    upsertMetaTag('name', 'twitter:title', activeMeta.title);
+    upsertMetaTag('name', 'twitter:description', activeMeta.description);
     upsertMetaTag('name', 'twitter:url', canonicalUrl);
     upsertMetaTag('name', 'twitter:image', absoluteImageUrl);
-    upsertMetaTag('name', 'twitter:image:alt', config.ogImageAlt);
+    upsertMetaTag('name', 'twitter:image:alt', activeMeta.ogImageAlt);
 
     // Dynamic section structured data
-    upsertSectionJsonLd(config, canonicalUrl, absoluteImageUrl, origin);
-  }, [activeSectionId]);
+    upsertSectionJsonLd(
+      baseConfig.slug,
+      activeMeta,
+      lang,
+      canonicalUrl,
+      absoluteImageUrl,
+      origin,
+    );
+  }, [activeSectionId, lang]);
 }

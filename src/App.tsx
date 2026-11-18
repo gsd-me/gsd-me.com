@@ -7,6 +7,7 @@ import {
   Check,
   Clock,
   Factory,
+  Globe,
   Layers,
   Loader2,
   Mail,
@@ -21,19 +22,9 @@ import {
   Wrench,
   X,
 } from 'lucide-react';
-import {
-  CARROT_VISION_DATA,
-  COMPANY_INFO,
-  CUSTOMERS,
-  ECOSYSTEM_SERVICES,
-  HERO_METRICS,
-  PARTNERS,
-  RETAIL_COMMAND_DATA,
-  SECTION_IMAGES,
-  SMART_ATTENDANCE_DATA,
-  SUCCESS_STORIES,
-  VERTICAL_SOLUTIONS,
-} from './data/gsdContent';
+import {ECOSYSTEM_SERVICES} from './data/gsdContent';
+import {ECOSYSTEM_SERVICES_AR, getGsdContent} from './data/gsdContentAr';
+import {getSolutionSubpageById, getSolutionSubpages} from './data/solutionSubpagesAr';
 import {
   getSectionByPathname,
   isSolutionSubpageId,
@@ -42,9 +33,10 @@ import {
 } from './seo/sectionMeta';
 import {useSectionSeo} from './seo/useSectionSeo';
 import {CarrotVisionDashboardPreview} from './components/CarrotVisionDashboardPreview';
-import {SOLUTION_SUBPAGE_BY_ID, SOLUTION_SUBPAGES} from './data/solutionSubpages';
 import {SolutionSubpageView} from './components/SolutionSubpageView';
 import {PageHeaderBanner} from './components/PageHeaderBanner';
+import {useLanguage, type Language} from './i18n/LanguageContext';
+import {UI_STRINGS} from './i18n/uiStrings';
 
 const STORY_ICONS = {
   cement: Factory,
@@ -55,7 +47,6 @@ const STORY_ICONS = {
 } as const;
 
 const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
-const VIEWPORT_ONCE = {once: true, amount: 0.12} as const;
 
 function ResilientImage({
   src,
@@ -127,107 +118,71 @@ interface DemoFormState {
 
 const SALES_EMAIL_ENDPOINT = 'https://formsubmit.co/ajax/sales@gsd-me.com';
 
-const INITIAL_FORM: DemoFormState = {
-  name: '',
-  company: '',
-  email: '',
-  phone: '',
-  solution: `${ECOSYSTEM_SERVICES[0].name} — ${ECOSYSTEM_SERVICES[0].category}`,
-  notes: '',
-};
+const DEFAULT_EN_SOLUTION = `${ECOSYSTEM_SERVICES[0].name} — ${ECOSYSTEM_SERVICES[0].category}`;
+const DEFAULT_AR_SOLUTION = `${ECOSYSTEM_SERVICES_AR[0].name} — ${ECOSYSTEM_SERVICES_AR[0].category}`;
 
-const KNOWN_SOLUTION_OPTIONS = new Set<string>([
-  'General AI & Video Analytics Inquiry',
-  ...ECOSYSTEM_SERVICES.map((service) => `${service.name} — ${service.category}`),
-  ...VERTICAL_SOLUTIONS.map((vertical) => `${vertical.name} Solutions`),
-  ...SUCCESS_STORIES.map((story) => `POC Request: ${story.sector}`),
-]);
+function getInitialForm(lang: Language): DemoFormState {
+  return {
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+    solution: lang === 'ar' ? DEFAULT_AR_SOLUTION : DEFAULT_EN_SOLUTION,
+    notes: '',
+  };
+}
 
-function buildSalesMailtoUrl(record: Partial<DemoFormState>, sourceUrl?: string): string {
-  const solution = record.solution?.trim() || INITIAL_FORM.solution;
-  const senderLabel = record.name?.trim() || 'Website Visitor';
+function buildSalesMailtoUrl(
+  record: Partial<DemoFormState>,
+  lang: Language,
+  recipientEmail: string,
+  sourceUrl?: string,
+): string {
+  const defaultSol = lang === 'ar' ? DEFAULT_AR_SOLUTION : DEFAULT_EN_SOLUTION;
+  const solution = record.solution?.trim() || defaultSol;
+  const senderLabel = record.name?.trim() || (lang === 'ar' ? 'زائر الموقع' : 'Website Visitor');
   const companyLabel = record.company?.trim();
-  const subject = `GSD Inquiry (${solution}) — ${senderLabel}${
-    companyLabel ? ` (${companyLabel})` : ''
-  }`;
+  const subject =
+    lang === 'ar'
+      ? `استفسار GSD (${solution}) — ${senderLabel}${companyLabel ? ` (${companyLabel})` : ''}`
+      : `GSD Inquiry (${solution}) — ${senderLabel}${companyLabel ? ` (${companyLabel})` : ''}`;
+
   const pageLink =
     sourceUrl || (typeof window !== 'undefined' ? window.location.href : 'https://gsd-me.com');
 
-  const lines = [
-    'Hello GSD Technologies Egypt Sales Team,',
-    '',
-    'Please find my demo / POC / contact inquiry details below:',
-    '',
-    `Full Name: ${record.name?.trim() || '[Please enter your name]'}`,
-    `Organization: ${companyLabel || 'Not specified'}`,
-    `Work Email: ${record.email?.trim() || '[Please enter your work email]'}`,
-    `Phone Number: ${record.phone?.trim() || 'Not specified'}`,
-    `Solution / Platform: ${solution}`,
-    `Site Details / Objectives: ${record.notes?.trim() || 'Not specified'}`,
-    `Source Page: ${pageLink}`,
-  ];
+  const lines =
+    lang === 'ar'
+      ? [
+          'السادة فريق مبيعات GSD Technologies مصر،',
+          '',
+          'مرفق تفاصيل طلب العرض التوضيحي / التجربة الميدانية:',
+          '',
+          `الاسم الكامل: ${record.name?.trim() || '[يرجى كتابة الاسم]'}`,
+          `الشركة / المؤسسة: ${companyLabel || 'غير محدد'}`,
+          `البريد الإلكتروني للعمل: ${record.email?.trim() || '[يرجى كتابة البريد]'}`,
+          `رقم الهاتف: ${record.phone?.trim() || 'غير محدد'}`,
+          `الحل / المنصة المطلوبة: ${solution}`,
+          `تفاصيل الموقع أو الأهداف: ${record.notes?.trim() || 'غير محدد'}`,
+          `صفحة المصدر: ${pageLink}`,
+        ]
+      : [
+          'Hello GSD Technologies Egypt Sales Team,',
+          '',
+          'Please find my demo / POC / contact inquiry details below:',
+          '',
+          `Full Name: ${record.name?.trim() || '[Please enter your name]'}`,
+          `Organization: ${companyLabel || 'Not specified'}`,
+          `Work Email: ${record.email?.trim() || '[Please enter your work email]'}`,
+          `Phone Number: ${record.phone?.trim() || 'Not specified'}`,
+          `Solution / Platform: ${solution}`,
+          `Site Details / Objectives: ${record.notes?.trim() || 'Not specified'}`,
+          `Source Page: ${pageLink}`,
+        ];
 
-  return `mailto:${COMPANY_INFO.email}?subject=${encodeURIComponent(
-    subject,
-  )}&body=${encodeURIComponent(lines.join('\n'))}`;
+  return `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
+    lines.join('\n'),
+  )}`;
 }
-
-const HOME_DIRECTORY_CARDS: {
-  id: SectionId;
-  index: string;
-  title: string;
-  subtitle: string;
-  cta: string;
-}[] = [
-  {
-    id: 'about',
-    index: '01',
-    title: 'About GSD Technologies Egypt',
-    subtitle:
-      '25+ years of regional ICT engineering meeting practical enterprise AI—our Mission, Vision, Approach, and enterprise clients.',
-    cta: 'Open About Page',
-  },
-  {
-    id: 'ecosystem',
-    index: '02',
-    title: 'AI Solutions Ecosystem',
-    subtitle:
-      'Carrot Vision QHSE, Eocortex VMS, Makkook DIOS, Aipix Cloud VSaaS, Vehicle DMS/ADAS, GSD-DocAi, Smart Attendance, and Retail Command.',
-    cta: 'Open Ecosystem Page',
-  },
-  {
-    id: 'solutions',
-    index: '03',
-    title: 'Industry & Role Solutions',
-    subtitle:
-      'Tailored deployments for Factories, Healthcare, Malls, Smart Compounds & Retail—plus 4 dedicated persona architecture pages.',
-    cta: 'Open Solutions Page',
-  },
-  {
-    id: 'success-stories',
-    index: '04',
-    title: 'Case Studies & POC Proof',
-    subtitle:
-      '5 verified Egyptian deployments across cement plants, heavy manufacturing, workshops, gas transport fleets, and fashion retail.',
-    cta: 'Open Case Studies Page',
-  },
-  {
-    id: 'partners',
-    index: '05',
-    title: 'Authorized Technology Partners',
-    subtitle:
-      'Official Egypt & MEA system integration for Carrot Vision, Eocortex, Makkook, Aipix, AIS, Howen, Claromentis, Augnito & TSPlus.',
-    cta: 'Open Partners Page',
-  },
-  {
-    id: 'contact',
-    index: '06',
-    title: 'Contact & Request a Demo / POC',
-    subtitle:
-      'Reach our Maadi, Cairo engineering headquarters to schedule a tailored technical walkthrough or on-site proof of concept.',
-    cta: 'Open Contact Page',
-  },
-];
 
 function resolveInitialRoute(): SectionId {
   if (typeof window === 'undefined') {
@@ -245,10 +200,15 @@ function resolveInitialRoute(): SectionId {
 }
 
 export default function App() {
+  const {lang, isRtl, toggleLang} = useLanguage();
+  const t = UI_STRINGS[lang];
+  const content = getGsdContent(lang);
+  const localizedSubpages = getSolutionSubpages(lang);
+
   const [activeRouteId, setActiveRouteId] = useState<SectionId>(resolveInitialRoute);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeVerticalId, setActiveVerticalId] = useState(VERTICAL_SOLUTIONS[0].id);
-  const [selectedStoryId, setSelectedStoryId] = useState(SUCCESS_STORIES[0].id);
+  const [activeVerticalId, setActiveVerticalId] = useState(content.verticalSolutions[0].id);
+  const [selectedStoryId, setSelectedStoryId] = useState(content.successStories[0].id);
   const [activeDeepDive, setActiveDeepDive] = useState<
     'carrot-vision' | 'gsd-ai-attendance' | 'retail-command'
   >('carrot-vision');
@@ -263,7 +223,7 @@ export default function App() {
   );
   const [logoFailed, setLogoFailed] = useState(false);
 
-  const [form, setForm] = useState<DemoFormState>(INITIAL_FORM);
+  const [form, setForm] = useState<DemoFormState>(() => getInitialForm(lang));
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof DemoFormState, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deliveryStatus, setDeliveryStatus] = useState<'sent' | 'fallback' | null>(null);
@@ -273,7 +233,30 @@ export default function App() {
 
   const nameInputRef = useRef<HTMLInputElement>(null);
 
-  useSectionSeo(activeRouteId);
+  useSectionSeo(activeRouteId, lang);
+
+  // Sync default untouched solution string when toggling language
+  useEffect(() => {
+    setForm((prev) => {
+      if (lang === 'ar') {
+        if (prev.solution === DEFAULT_EN_SOLUTION) {
+          return {...prev, solution: DEFAULT_AR_SOLUTION};
+        }
+        if (prev.solution === UI_STRINGS.en.contact.generalOption) {
+          return {...prev, solution: UI_STRINGS.ar.contact.generalOption};
+        }
+      } else {
+        if (prev.solution === DEFAULT_AR_SOLUTION) {
+          return {...prev, solution: DEFAULT_EN_SOLUTION};
+        }
+        if (prev.solution === UI_STRINGS.ar.contact.generalOption) {
+          return {...prev, solution: UI_STRINGS.en.contact.generalOption};
+        }
+      }
+      return prev;
+    });
+    setFormErrors({});
+  }, [lang]);
 
   useEffect(() => {
     const initialHash = window.location.hash.replace('#', '');
@@ -300,12 +283,21 @@ export default function App() {
   }, []);
 
   const activeVertical =
-    VERTICAL_SOLUTIONS.find((v) => v.id === activeVerticalId) ?? VERTICAL_SOLUTIONS[0];
+    content.verticalSolutions.find((v) => v.id === activeVerticalId) ?? content.verticalSolutions[0];
   const activeStory =
-    SUCCESS_STORIES.find((s) => s.id === selectedStoryId) ?? SUCCESS_STORIES[0];
+    content.successStories.find((s) => s.id === selectedStoryId) ?? content.successStories[0];
   const activeSubpage = isSolutionSubpageId(activeRouteId)
-    ? SOLUTION_SUBPAGE_BY_ID[activeRouteId]
+    ? getSolutionSubpageById(activeRouteId, lang) ?? null
     : null;
+
+  const activeKnownOptions = new Set<string>([
+    t.contact.generalOption,
+    ...content.ecosystemServices.map((service) => `${service.name} — ${service.category}`),
+    ...content.verticalSolutions.map((vertical) =>
+      t.contact.solutionsSuffix ? `${vertical.name} ${t.contact.solutionsSuffix}` : vertical.name,
+    ),
+    ...content.successStories.map((story) => `${t.contact.pocPrefix} ${story.sector}`),
+  ]);
 
   const navigateToRoute = (routeId: SectionId, innerHash?: string) => {
     setMobileMenuOpen(false);
@@ -334,7 +326,7 @@ export default function App() {
   const handleRequestDemo = (preselectedSolution?: string) => {
     setForm((prev) => ({
       ...prev,
-      solution: preselectedSolution || 'General AI & Video Analytics Inquiry',
+      solution: preselectedSolution || t.contact.generalOption,
     }));
     setFormErrors({});
     setDeliveryStatus(null);
@@ -353,13 +345,13 @@ export default function App() {
     const errors: Partial<Record<keyof DemoFormState, string>> = {};
 
     if (!form.name.trim()) {
-      errors.name = 'Please enter your full name.';
+      errors.name = t.contact.errors.name;
     }
     if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-      errors.email = 'Please enter a valid work email address.';
+      errors.email = t.contact.errors.email;
     }
     if (form.phone.trim() && !/^[+\d\s()-]{7,20}$/.test(form.phone.trim())) {
-      errors.phone = 'Please enter a valid phone number.';
+      errors.phone = t.contact.errors.phone;
     }
 
     if (Object.keys(errors).length > 0) {
@@ -389,13 +381,14 @@ export default function App() {
         },
         body: JSON.stringify({
           name: snapshot.name,
-          company: snapshot.company || 'Not specified',
+          company: snapshot.company || t.contact.confirm.notSpecified,
           email: snapshot.email,
-          phone: snapshot.phone || 'Not specified',
+          phone: snapshot.phone || t.contact.confirm.notSpecified,
           solution: snapshot.solution,
-          notes: snapshot.notes || 'No additional notes provided',
+          notes: snapshot.notes || '—',
+          language: lang.toUpperCase(),
           sourcePage: snapshot.sourceUrl,
-          recipient: COMPANY_INFO.email,
+          recipient: content.companyInfo.email,
           _subject: `GSD Inquiry (${snapshot.solution}) — ${snapshot.name}${
             snapshot.company ? ` (${snapshot.company})` : ''
           }`,
@@ -411,7 +404,7 @@ export default function App() {
       if (response.ok && (payload?.success === true || payload?.success === 'true')) {
         setSubmittedRecord(snapshot);
         setDeliveryStatus('sent');
-        setForm(INITIAL_FORM);
+        setForm(getInitialForm(lang));
       } else {
         setSubmittedRecord(snapshot);
         setDeliveryStatus('fallback');
@@ -425,27 +418,32 @@ export default function App() {
   };
 
   const navItems: {id: SectionId; label: string; slug: string}[] = [
-    {id: 'about', label: 'About', slug: '/about'},
-    {id: 'ecosystem', label: 'Ecosystem', slug: '/gsd-services-ecosystem'},
-    {id: 'solutions', label: 'Solutions', slug: '/our-solutions'},
-    {id: 'success-stories', label: 'Case Studies', slug: '/success-stories'},
-    {id: 'partners', label: 'Partners', slug: '/our-partners'},
-    {id: 'contact', label: 'Contact', slug: '/contact-us'},
+    {id: 'about', label: t.nav.about, slug: '/about'},
+    {id: 'ecosystem', label: t.nav.ecosystem, slug: '/gsd-services-ecosystem'},
+    {id: 'solutions', label: t.nav.solutions, slug: '/our-solutions'},
+    {id: 'success-stories', label: t.nav.caseStudies, slug: '/success-stories'},
+    {id: 'partners', label: t.nav.partners, slug: '/our-partners'},
+    {id: 'contact', label: t.nav.contact, slug: '/contact-us'},
   ];
 
   const isSolutionsActive =
     activeRouteId === 'solutions' || isSolutionSubpageId(activeRouteId);
 
+  const arrowDirClass = isRtl ? 'rotate-180' : '';
+
   return (
     <MotionConfig reducedMotion="user">
-      <div className="flex min-h-screen flex-col overflow-x-clip bg-[#F8FAFC] text-[#0B132B] antialiased">
+      <div
+        dir={isRtl ? 'rtl' : 'ltr'}
+        className="flex min-h-screen flex-col overflow-x-clip bg-[#F8FAFC] text-[#0B132B] antialiased"
+      >
         {/* Zone-disciplined 3-part Top Navigation Bar */}
         <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
-          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:gap-6 sm:px-6 lg:gap-8 lg:px-8">
-            {/* Zone 1: Official GSD brand logo on left side */}
+          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:gap-5 sm:px-6 lg:gap-6 lg:px-8">
+            {/* Zone 1: Official GSD brand logo */}
             <a
               href="/"
-              aria-label="GSD Technologies — Home"
+              aria-label={t.brandAriaLabel}
               onClick={(e) => {
                 e.preventDefault();
                 navigateToRoute('top');
@@ -455,39 +453,39 @@ export default function App() {
               {!logoFailed ? (
                 <img
                   src="/assets/aistudio/logo-GSD_a8de37a5.jpg"
-                  alt="GSD Technologies — Digital Transformation Experts"
+                  alt={t.logoAlt}
                   referrerPolicy="no-referrer"
                   onError={() => setLogoFailed(true)}
                   className="h-10 w-auto rounded-md object-contain sm:h-11"
                 />
               ) : (
-                <span className="font-display text-base font-bold tracking-tight text-[#040B29] sm:text-lg">
+                <span className="font-display text-lg font-extrabold tracking-tight text-[#040B29]">
                   GSD Technologies
                 </span>
               )}
             </a>
 
-            {/* Zone 2: Multi-page top navigation links */}
+            {/* Zone 2: Clean single-line page links */}
             <nav
-              aria-label="Primary Navigation"
-              className="hidden md:flex items-center gap-3.5 text-xs font-medium text-slate-600 lg:gap-6 lg:text-sm"
+              aria-label={isRtl ? 'التنقل الرئيسي' : 'Primary Navigation'}
+              className="hidden md:flex items-center gap-4 lg:gap-5 text-sm font-medium text-slate-600"
             >
               {navItems.map((item) => {
-                const isCurrent =
+                const isActive =
                   item.id === 'solutions' ? isSolutionsActive : activeRouteId === item.id;
                 return (
                   <a
                     key={item.id}
                     href={item.slug}
-                    aria-current={isCurrent ? 'page' : undefined}
+                    aria-current={isActive ? 'page' : undefined}
                     onClick={(e) => {
                       e.preventDefault();
                       navigateToRoute(item.id);
                     }}
-                    className={`py-1 whitespace-nowrap shrink-0 transition-colors hover:text-[#0B34D6] hover:underline hover:underline-offset-4 ${
-                      isCurrent
-                        ? 'font-semibold text-[#0B34D6] underline underline-offset-4'
-                        : ''
+                    className={`whitespace-nowrap shrink-0 py-1 transition-colors duration-150 ${
+                      isActive
+                        ? 'font-semibold text-[#0B34D6] underline underline-offset-8'
+                        : 'hover:text-[#0B34D6] hover:underline hover:underline-offset-8'
                     }`}
                   >
                     {item.label}
@@ -496,18 +494,27 @@ export default function App() {
               })}
             </nav>
 
-            {/* Zone 3: Single primary CTA + mobile drawer button */}
-            <div className="flex items-center gap-2.5 shrink-0 sm:gap-3">
+            {/* Zone 3: Language Switcher + Primary CTA + Mobile drawer toggle */}
+            <div className="flex items-center gap-2 shrink-0 sm:gap-2.5">
+              <button
+                type="button"
+                onClick={toggleLang}
+                aria-label={t.nav.switchToAria}
+                className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-[#040B29] whitespace-nowrap shrink-0 transition-colors hover:border-[#0B34D6] hover:text-[#0B34D6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B34D6]"
+              >
+                <Globe className="h-3.5 w-3.5 text-[#0B34D6]" />
+                <span>{t.nav.switchToLabel}</span>
+              </button>
               <button
                 type="button"
                 onClick={() => handleRequestDemo()}
                 className="hidden sm:inline-flex min-h-[40px] items-center justify-center rounded-md bg-[#0B34D6] px-4 py-2 text-sm font-medium text-white whitespace-nowrap shrink-0 transition-colors duration-150 hover:bg-[#06249E] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B34D6]"
               >
-                Request a Demo
+                {t.nav.requestDemo}
               </button>
               <button
                 type="button"
-                aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-label={mobileMenuOpen ? t.nav.closeMenuAria : t.nav.openMenuAria}
                 aria-expanded={mobileMenuOpen}
                 onClick={() => setMobileMenuOpen((prev) => !prev)}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-slate-200 text-slate-700 md:hidden hover:bg-slate-50"
@@ -520,23 +527,26 @@ export default function App() {
           {/* Mobile navigation drawer */}
           {mobileMenuOpen && (
             <div className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-slate-200 bg-white px-4 py-4 sm:px-6 md:hidden">
-              <nav aria-label="Mobile Navigation" className="flex flex-col gap-1">
+              <nav
+                aria-label={isRtl ? 'قائمة التنقل للهاتف' : 'Mobile Navigation'}
+                className="flex flex-col gap-1"
+              >
                 {[
-                  {label: 'Home', id: 'top' as SectionId, slug: '/'},
-                  {label: 'About GSD', id: 'about' as SectionId, slug: '/about'},
+                  {label: t.nav.home, id: 'top' as SectionId, slug: '/'},
+                  {label: t.nav.about, id: 'about' as SectionId, slug: '/about'},
                   {
-                    label: 'Services Ecosystem',
+                    label: t.nav.ecosystem,
                     id: 'ecosystem' as SectionId,
                     slug: '/gsd-services-ecosystem',
                   },
-                  {label: 'Solutions', id: 'solutions' as SectionId, slug: '/our-solutions'},
+                  {label: t.nav.solutions, id: 'solutions' as SectionId, slug: '/our-solutions'},
                   {
-                    label: 'Case Studies',
+                    label: t.nav.caseStudies,
                     id: 'success-stories' as SectionId,
                     slug: '/success-stories',
                   },
-                  {label: 'Our Partners', id: 'partners' as SectionId, slug: '/our-partners'},
-                  {label: 'Contact Us', id: 'contact' as SectionId, slug: '/contact-us'},
+                  {label: t.nav.partners, id: 'partners' as SectionId, slug: '/our-partners'},
+                  {label: t.nav.contact, id: 'contact' as SectionId, slug: '/contact-us'},
                 ].map((item) => {
                   const isCurrent = activeRouteId === item.id;
                   return (
@@ -547,22 +557,35 @@ export default function App() {
                         e.preventDefault();
                         navigateToRoute(item.id);
                       }}
-                      className={`flex min-h-[44px] items-center justify-between border-b border-slate-100 py-2 text-left text-sm font-medium hover:text-[#0B34D6] ${
-                        isCurrent ? 'text-[#0B34D6] font-semibold' : 'text-slate-800'
+                      className={`flex min-h-[44px] items-center justify-between border-b border-slate-100 py-2 text-start text-sm font-medium hover:text-[#0B34D6] ${
+                        isCurrent ? 'font-semibold text-[#0B34D6]' : 'text-slate-800'
                       }`}
                     >
                       <span>{item.label}</span>
-                      <ArrowRight className="h-4 w-4 text-slate-400" />
+                      <ArrowRight className={`h-4 w-4 text-slate-400 ${arrowDirClass}`} />
                     </a>
                   );
                 })}
-                <button
-                  type="button"
-                  onClick={() => handleRequestDemo()}
-                  className="mt-3 min-h-[44px] w-full rounded-md bg-[#0B34D6] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#06249E]"
-                >
-                  Request a Demo
-                </button>
+                <div className="mt-3 grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toggleLang();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-[#040B29] hover:border-[#0B34D6] hover:text-[#0B34D6]"
+                  >
+                    <Globe className="h-4 w-4 text-[#0B34D6]" />
+                    <span>{t.nav.switchToLabel}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRequestDemo()}
+                    className="min-h-[44px] rounded-md bg-[#0B34D6] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#06249E]"
+                  >
+                    {t.nav.requestDemo}
+                  </button>
+                </div>
               </nav>
             </div>
           )}
@@ -594,9 +617,11 @@ export default function App() {
               <section className="relative overflow-hidden bg-[#040B29] text-white">
                 <div aria-hidden="true" className="pointer-events-none absolute inset-0">
                   <ResilientImage
-                    src={SECTION_IMAGES.heroControlCenter.src}
+                    src={content.sectionImages.heroControlCenter.src}
                     alt=""
-                    fallbackTitle="GSD Operations Command Center"
+                    fallbackTitle={
+                      isRtl ? 'مركز عمليات GSD للتحكم' : 'GSD Operations Command Center'
+                    }
                     className="h-full w-full object-cover object-center opacity-35"
                   />
                   <div className="absolute inset-0 bg-gradient-to-br from-[#0B34D6]/85 via-[#071A66]/85 to-[#040B29]/95" />
@@ -621,16 +646,13 @@ export default function App() {
                     >
                       <div>
                         <p className="text-xs font-medium tracking-wide text-[#BDE5F6]">
-                          Digital Transformation Experts · 25+ Years MEA Experience
+                          {t.home.eyebrow}
                         </p>
-                        <h1 className="mt-4 max-w-2xl font-display text-[clamp(2rem,4vw,3.75rem)] font-bold leading-[1.08] tracking-tight text-white sm:mt-5 [text-wrap:balance]">
-                          AI HSE Compliance, PPE Detection &amp; Video Analytics in Egypt &amp; MEA
+                        <h1 className="mt-4 max-w-2xl font-display text-[clamp(2rem,4vw,3.5rem)] font-bold leading-[1.12] tracking-tight text-white sm:mt-5 [text-wrap:balance]">
+                          {t.home.heroH1}
                         </h1>
                         <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-200 sm:mt-6 sm:text-lg">
-                          Turn existing CCTV into a PPE detection camera system with industrial fire
-                          and smoke video analytics, overhead crane safety monitoring, LPR gate
-                          control, retail footfall counting, DMS dashcam fleet safety, and Makkook
-                          decision intelligence across Egypt and Saudi Arabia.
+                          {t.home.heroLead}
                         </p>
                       </div>
 
@@ -640,8 +662,8 @@ export default function App() {
                           onClick={() => handleRequestDemo()}
                           className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md bg-white px-6 py-3 text-sm font-semibold text-[#040B29] whitespace-nowrap shrink-0 transition-colors duration-150 hover:bg-[#BDE5F6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                         >
-                          <span>Request a Demo</span>
-                          <ArrowRight className="h-4 w-4" />
+                          <span>{t.nav.requestDemo}</span>
+                          <ArrowRight className={`h-4 w-4 ${arrowDirClass}`} />
                         </button>
                         <a
                           href="/gsd-services-ecosystem"
@@ -651,8 +673,8 @@ export default function App() {
                           }}
                           className="inline-flex min-h-[44px] items-center justify-center gap-1.5 text-sm font-medium text-[#BDE5F6] whitespace-nowrap shrink-0 transition-colors hover:text-white hover:underline hover:underline-offset-4 sm:justify-start"
                         >
-                          <span>Explore GSD Services Ecosystem</span>
-                          <ArrowRight className="h-4 w-4" />
+                          <span>{t.home.heroExploreEcosystem}</span>
+                          <ArrowRight className={`h-4 w-4 ${arrowDirClass}`} />
                         </a>
                       </div>
                     </motion.div>
@@ -667,7 +689,7 @@ export default function App() {
                         {!logoFailed ? (
                           <img
                             src="/assets/aistudio/logo-GSD_a8de37a5.jpg"
-                            alt="GSD Technologies — Digital Transformation Experts official logo"
+                            alt={t.logoAlt}
                             referrerPolicy="no-referrer"
                             onError={() => setLogoFailed(true)}
                             className="block h-auto w-full object-contain"
@@ -678,7 +700,7 @@ export default function App() {
                               GSD TECHNOLOGIES
                             </span>
                             <span className="mt-1 text-xs tracking-[0.22em] text-[#BDE5F6]">
-                              digital transformation Experts
+                              {content.companyInfo.tagline}
                             </span>
                           </div>
                         )}
@@ -686,37 +708,41 @@ export default function App() {
 
                       <div className="relative flex-1 overflow-hidden">
                         <ResilientImage
-                          src={SECTION_IMAGES.heroControlCenter.src}
-                          alt={SECTION_IMAGES.heroControlCenter.alt}
-                          fallbackTitle="GSD Operations Command Center"
+                          src={content.sectionImages.heroControlCenter.src}
+                          alt={content.sectionImages.heroControlCenter.alt}
+                          fallbackTitle={
+                            isRtl ? 'مركز عمليات GSD للتحكم' : 'GSD Operations Command Center'
+                          }
                           className="aspect-[16/9] h-full w-full object-cover object-center"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#040B29] via-[#040B29]/30 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
                           <p className="text-xs font-medium text-[#BDE5F6]">
-                            Cairo Engineering &amp; Integration Hub
+                            {t.home.heroCardEyebrow}
                           </p>
                           <p className="mt-1 font-display text-base font-semibold text-white sm:text-lg">
-                            End-to-end AI engines engineered for measurable ROI across Egypt and MEA
+                            {t.home.heroCardTitle}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-5 py-4 text-xs text-slate-200 sm:px-6">
                         <a
-                          href={`mailto:${COMPANY_INFO.email}`}
+                          dir="ltr"
+                          href={`mailto:${content.companyInfo.email}`}
                           className="font-mono text-[#BDE5F6] transition-colors hover:text-white hover:underline"
                         >
-                          {COMPANY_INFO.email}
+                          {content.companyInfo.email}
                         </a>
                         <span aria-hidden="true" className="hidden text-white/30 sm:inline">
                           ·
                         </span>
                         <a
-                          href={`tel:${COMPANY_INFO.phones[0]}`}
+                          dir="ltr"
+                          href={`tel:${content.companyInfo.phones[0]}`}
                           className="font-mono text-white transition-colors hover:text-[#BDE5F6] hover:underline"
                         >
-                          {COMPANY_INFO.phones[0]}
+                          {content.companyInfo.phones[0]}
                         </a>
                       </div>
                     </motion.div>
@@ -729,7 +755,7 @@ export default function App() {
                     transition={{duration: 0.5, delay: 0.18, ease: EASE_OUT}}
                     className="mt-12 grid grid-cols-1 gap-6 border-t border-white/15 pt-8 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8"
                   >
-                    {HERO_METRICS.map((metric) => (
+                    {content.heroMetrics.map((metric) => (
                       <div key={metric.label} className="min-w-0">
                         <div className="font-mono text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                           {metric.value}
@@ -746,22 +772,16 @@ export default function App() {
               <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
                 <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-end">
                   <div>
-                    <p className="text-xs font-medium text-[#0B34D6]">
-                      Enterprise Architecture · Egypt &amp; Saudi Arabia
-                    </p>
+                    <p className="text-xs font-medium text-[#0B34D6]">{t.home.directoryEyebrow}</p>
                     <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl">
-                      Explore GSD Technologies by platform, role, or deployment proof
+                      {t.home.directoryHeading}
                     </h2>
                   </div>
-                  <p className="max-w-md text-sm text-slate-600">
-                    Navigate directly to dedicated pages for company background, all 8 AI
-                    platforms, vertical blueprints, 5 regional case studies, and authorized
-                    partners.
-                  </p>
+                  <p className="max-w-md text-sm text-slate-600">{t.home.directorySubcopy}</p>
                 </div>
 
                 <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {HOME_DIRECTORY_CARDS.map((card) => {
+                  {t.home.directoryCards.map((card) => {
                     const slug = SECTION_SEO_BY_ID[card.id].slug;
                     return (
                       <a
@@ -786,7 +806,7 @@ export default function App() {
                         </div>
                         <div className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-[#040B29] group-hover:text-[#0B34D6]">
                           <span>{card.cta}</span>
-                          <ArrowRight className="h-3.5 w-3.5" />
+                          <ArrowRight className={`h-3.5 w-3.5 ${arrowDirClass}`} />
                         </div>
                       </a>
                     );
@@ -799,11 +819,9 @@ export default function App() {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                   <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-end">
                     <div>
-                      <p className="text-xs font-medium text-[#0B34D6]">
-                        Trusted by Industry Leaders
-                      </p>
+                      <p className="text-xs font-medium text-[#0B34D6]">{t.home.customersEyebrow}</p>
                       <h2 className="mt-1 font-display text-2xl font-bold text-[#040B29]">
-                        Production AI deployments across Egypt &amp; MEA
+                        {t.home.customersHeading}
                       </h2>
                     </div>
                     <a
@@ -814,13 +832,13 @@ export default function App() {
                       }}
                       className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B34D6] hover:underline"
                     >
-                      <span>Read 5 Enterprise Case Studies</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
+                      <span>{t.home.customersLink}</span>
+                      <ArrowRight className={`h-3.5 w-3.5 ${arrowDirClass}`} />
                     </a>
                   </div>
 
                   <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                    {CUSTOMERS.map((customer) => (
+                    {content.customers.map((customer) => (
                       <div
                         key={`${customer.name}-${customer.sector}`}
                         className="flex flex-col items-center justify-between rounded-xl border border-slate-200 bg-[#F8FAFC] p-4 text-center"
@@ -828,7 +846,7 @@ export default function App() {
                         <div className="flex h-12 items-center justify-center">
                           <VendorLogo
                             src={customer.logoSrc}
-                            alt={`${customer.name} customer logo`}
+                            alt={`${customer.name} logo`}
                             name={customer.name}
                             className="max-h-10 w-auto max-w-[120px] object-contain"
                           />
@@ -846,16 +864,11 @@ export default function App() {
               <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
                 <div className="flex flex-col items-start justify-between gap-6 rounded-xl bg-[#040B29] p-8 text-white sm:flex-row sm:items-center sm:p-10">
                   <div>
-                    <p className="text-xs font-medium text-[#BDE5F6]">
-                      Maadi, Cairo Engineering Hub
-                    </p>
+                    <p className="text-xs font-medium text-[#BDE5F6]">{t.home.bottomCtaEyebrow}</p>
                     <h2 className="mt-1 font-display text-2xl font-bold text-white">
-                      Ready to transform your operations?
+                      {t.home.bottomCtaTitle}
                     </h2>
-                    <p className="mt-2 max-w-xl text-sm text-slate-300">
-                      Share your site cameras, fleet size, or automation goals with our Cairo team
-                      to schedule a live walkthrough or on-site POC.
-                    </p>
+                    <p className="mt-2 max-w-xl text-sm text-slate-300">{t.home.bottomCtaBody}</p>
                   </div>
                   <a
                     href="/contact-us"
@@ -865,8 +878,8 @@ export default function App() {
                     }}
                     className="inline-flex min-h-[44px] items-center gap-2 rounded-md bg-white px-6 py-3 text-sm font-semibold text-[#040B29] whitespace-nowrap shrink-0 transition-colors hover:bg-[#BDE5F6]"
                   >
-                    <span>Book Technical Demo</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <span>{t.home.bottomCtaButton}</span>
+                    <ArrowRight className={`h-4 w-4 ${arrowDirClass}`} />
                   </a>
                 </div>
               </section>
@@ -879,10 +892,10 @@ export default function App() {
           {activeRouteId === 'about' && (
             <>
               <PageHeaderBanner
-                breadcrumbLabel="About GSD"
-                eyebrow="About GSD Technologies Egypt · Maadi, Cairo"
-                title="25+ years of regional ICT leadership meeting practical enterprise AI"
-                description={COMPANY_INFO.story}
+                breadcrumbLabel={t.about.breadcrumb}
+                eyebrow={t.about.eyebrow}
+                title={t.about.title}
+                description={content.companyInfo.story}
                 onNavigateHome={() => navigateToRoute('top')}
                 onRequestDemo={() => handleRequestDemo()}
               />
@@ -892,49 +905,46 @@ export default function App() {
                   <div className="min-w-0 lg:col-span-5">
                     <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
                       <ResilientImage
-                        src={SECTION_IMAGES.aboutOffice.src}
-                        alt={SECTION_IMAGES.aboutOffice.alt}
-                        fallbackTitle="GSD Technologies Egypt — Maadi, Cairo"
+                        src={content.sectionImages.aboutOffice.src}
+                        alt={content.sectionImages.aboutOffice.alt}
+                        fallbackTitle={content.companyInfo.legalName}
                         className="aspect-[4/3] w-full object-cover object-center"
                       />
                     </div>
                     <h2 className="mt-6 font-display text-xl font-bold text-[#040B29]">
-                      Digital Transformation Experts · Cairo &amp; MEA
+                      {t.about.officeHeading}
                     </h2>
                     <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                      Headquartered in Maadi, Cairo, our engineering team connects complex
-                      manufacturing plants, transport fleets, hospitals, and multi-branch retail
-                      operations directly to production-tested computer vision and decision
-                      intelligence platforms.
+                      {t.about.officeSummary}
                     </p>
                   </div>
 
-                  <div className="min-w-0 space-y-6 border-t border-slate-200 pt-8 lg:col-span-7 lg:border-t-0 lg:border-l lg:pl-10 lg:pt-0">
+                  <div className="min-w-0 space-y-6 border-t border-slate-200 pt-8 lg:col-span-7 lg:border-s lg:border-t-0 lg:ps-10 lg:pt-0">
                     <div className="border-b border-slate-200 pb-6">
                       <div className="font-mono text-xs font-medium text-[#0B34D6]">01</div>
                       <h2 className="mt-1 font-display text-lg font-semibold text-[#040B29]">
-                        Our Mission
+                        {t.about.missionTitle}
                       </h2>
                       <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                        {COMPANY_INFO.mission}
+                        {content.companyInfo.mission}
                       </p>
                     </div>
                     <div className="border-b border-slate-200 pb-6">
                       <div className="font-mono text-xs font-medium text-[#0B34D6]">02</div>
                       <h2 className="mt-1 font-display text-lg font-semibold text-[#040B29]">
-                        Our Vision
+                        {t.about.visionTitle}
                       </h2>
                       <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                        {COMPANY_INFO.vision}
+                        {content.companyInfo.vision}
                       </p>
                     </div>
                     <div>
                       <div className="font-mono text-xs font-medium text-[#0B34D6]">03</div>
                       <h2 className="mt-1 font-display text-lg font-semibold text-[#040B29]">
-                        Our Approach
+                        {t.about.approachTitle}
                       </h2>
                       <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                        {COMPANY_INFO.approach}
+                        {content.companyInfo.approach}
                       </p>
                     </div>
                   </div>
@@ -944,9 +954,9 @@ export default function App() {
               <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
                 <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-end">
                   <div>
-                    <p className="text-xs font-medium text-[#0B34D6]">Trusted by Industry Leaders</p>
+                    <p className="text-xs font-medium text-[#0B34D6]">{t.about.customersEyebrow}</p>
                     <h2 className="mt-1 font-display text-2xl font-bold text-[#040B29]">
-                      Production deployments across Egypt &amp; MEA
+                      {t.about.customersHeading}
                     </h2>
                   </div>
                   <a
@@ -957,13 +967,13 @@ export default function App() {
                     }}
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B34D6] hover:underline"
                   >
-                    <span>Explore Technology Partners</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <span>{t.about.partnersLink}</span>
+                    <ArrowRight className={`h-3.5 w-3.5 ${arrowDirClass}`} />
                   </a>
                 </div>
 
                 <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                  {CUSTOMERS.map((customer) => (
+                  {content.customers.map((customer) => (
                     <div
                       key={`${customer.name}-${customer.sector}`}
                       className="flex min-w-0 flex-col justify-between rounded-xl border border-slate-200 bg-white p-5"
@@ -971,7 +981,7 @@ export default function App() {
                       <div className="flex h-16 items-center justify-center py-2">
                         <VendorLogo
                           src={customer.logoSrc}
-                          alt={`${customer.name} customer logo`}
+                          alt={`${customer.name} logo`}
                           name={customer.name}
                           className="max-h-12 w-auto max-w-[148px] object-contain"
                         />
@@ -998,10 +1008,10 @@ export default function App() {
           {activeRouteId === 'ecosystem' && (
             <>
               <PageHeaderBanner
-                breadcrumbLabel="Services Ecosystem"
-                eyebrow="Our AI Solutions Ecosystem · Egypt & Saudi Arabia"
-                title="Carrot Vision AI, Eocortex Partner Egypt, Cloud VSaaS & Hardware-Agnostic VMS"
-                description="We deploy Cloud VSaaS Middle East, Makkook decision intelligence, AI production scheduling, DMS dashcams, Smart Attendance, and GSD-DocAi with full local engineering."
+                breadcrumbLabel={t.ecosystem.breadcrumb}
+                eyebrow={t.ecosystem.eyebrow}
+                title={t.ecosystem.title}
+                description={t.ecosystem.description}
                 onNavigateHome={() => navigateToRoute('top')}
                 onRequestDemo={() => handleRequestDemo()}
               />
@@ -1010,8 +1020,8 @@ export default function App() {
                 {/* Editorial 16:9 Industrial AI Showcase Image */}
                 <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-[#040B29]">
                   <ResilientImage
-                    src={SECTION_IMAGES.ecosystemIndustrial.src}
-                    alt={SECTION_IMAGES.ecosystemIndustrial.alt}
+                    src={content.sectionImages.ecosystemIndustrial.src}
+                    alt={content.sectionImages.ecosystemIndustrial.alt}
                     fallbackTitle="Industrial AI Video Analytics"
                     className="aspect-[16/10] min-h-[210px] w-full object-cover object-center sm:aspect-[16/8] lg:aspect-[16/7]"
                   />
@@ -1019,20 +1029,20 @@ export default function App() {
                   <div className="absolute inset-x-0 bottom-0 flex flex-col justify-between gap-2 p-5 text-white sm:flex-row sm:items-end sm:p-8">
                     <div className="min-w-0">
                       <p className="text-xs font-medium text-[#BDE5F6]">
-                        Existing CCTV Infrastructure · Zero Hardware Lock-In
+                        {t.ecosystem.bannerEyebrow}
                       </p>
                       <p className="mt-1 font-display text-base font-semibold sm:text-xl">
-                        Real-time PPE verification, crane zone geofencing, and thermal hazard analytics
+                        {t.ecosystem.bannerTitle}
                       </p>
                     </div>
                     <span className="font-mono text-xs text-slate-200 whitespace-nowrap shrink-0">
-                      99% ONVIF IP Compatible
+                      {t.ecosystem.bannerBadge}
                     </span>
                   </div>
                 </div>
 
                 <div className="mt-8 grid grid-cols-1 gap-6 sm:mt-10 lg:grid-cols-6">
-                  {ECOSYSTEM_SERVICES.map((service, index) => {
+                  {content.ecosystemServices.map((service, index) => {
                     const isFourCol = index === 0 || index === 2 || index === 5;
                     const isThreeCol = index === 6 || index === 7;
                     const isWide = isFourCol || isThreeCol;
@@ -1115,7 +1125,12 @@ export default function App() {
                             <div className="flex flex-wrap items-center gap-6">
                               {service.metrics.map((m) => (
                                 <div key={m.label}>
-                                  <div className="font-mono text-base font-semibold text-[#040B29]">
+                                  <div
+                                    dir="ltr"
+                                    className={`font-mono text-base font-semibold text-[#040B29] ${
+                                      isRtl ? 'text-right' : 'text-left'
+                                    }`}
+                                  >
                                     {m.value}
                                   </div>
                                   <div className="text-xs text-slate-500">{m.label}</div>
@@ -1140,13 +1155,7 @@ export default function App() {
                                   }}
                                   className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-slate-200 px-3.5 py-2 text-xs font-medium text-slate-700 whitespace-nowrap shrink-0 transition-colors hover:border-[#0B34D6] hover:text-[#0B34D6]"
                                 >
-                                  <span>
-                                    {service.id === 'carrot-vision'
-                                      ? 'QHSE Details'
-                                      : service.id === 'gsd-ai-attendance'
-                                        ? 'HR & Setup Details'
-                                        : 'Virtual Manager Details'}
-                                  </span>
+                                  <span>{t.ecosystem.openModuleLabel}</span>
                                 </button>
                               )}
                               <button
@@ -1154,8 +1163,8 @@ export default function App() {
                                 onClick={() => handleRequestDemo(`${service.name} — ${service.category}`)}
                                 className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-slate-200 px-4 py-2 text-xs font-semibold text-[#040B29] whitespace-nowrap shrink-0 transition-colors hover:border-[#0B34D6] hover:bg-[#0B34D6] hover:text-white"
                               >
-                                <span>Request Demo</span>
-                                <ArrowRight className="h-3.5 w-3.5" />
+                                <span>{t.nav.requestDemo}</span>
+                                <ArrowRight className={`h-3.5 w-3.5 ${arrowDirClass}`} />
                               </button>
                             </div>
                           </div>
@@ -1172,18 +1181,21 @@ export default function App() {
                 >
                   <div
                     role="tablist"
-                    aria-label="Select ecosystem solution specification"
+                    aria-label={t.ecosystem.deepDiveHeading}
                     className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-[#040B29] px-6 py-4 text-white sm:px-8"
                   >
                     <span className="text-xs font-medium text-[#BDE5F6]">
-                      Solution Specifications &amp; Architecture
+                      {t.ecosystem.deepDiveEyebrow}
                     </span>
                     <div className="flex flex-wrap gap-2">
                       {(
                         [
-                          {id: 'carrot-vision', label: '01. Carrot Vision QHSE'},
-                          {id: 'gsd-ai-attendance', label: '07. Smart Employee Attendance'},
-                          {id: 'retail-command', label: '08. Retail Command & Virtual Manager'},
+                          {id: 'carrot-vision', label: `01. ${t.ecosystem.deepDiveTabs.carrot}`},
+                          {
+                            id: 'gsd-ai-attendance',
+                            label: `07. ${t.ecosystem.deepDiveTabs.attendance}`,
+                          },
+                          {id: 'retail-command', label: `08. ${t.ecosystem.deepDiveTabs.retail}`},
                         ] as const
                       ).map((item) => {
                         const selected = activeDeepDive === item.id;
@@ -1221,16 +1233,18 @@ export default function App() {
                             <span aria-hidden="true" className="text-slate-300">
                               ·
                             </span>
-                            <p className="text-xs font-medium text-[#0B34D6]">{CARROT_VISION_DATA.eyebrow}</p>
+                            <p className="text-xs font-medium text-[#0B34D6]">
+                              {content.carrotVisionData.eyebrow}
+                            </p>
                           </div>
                           <h2 className="mt-4 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl [text-wrap:balance]">
-                            {CARROT_VISION_DATA.title}
+                            {content.carrotVisionData.title}
                           </h2>
                           <p className="mt-2 text-sm font-medium text-slate-800">
-                            {CARROT_VISION_DATA.tagline}
+                            {content.carrotVisionData.tagline}
                           </p>
                           <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                            {CARROT_VISION_DATA.summary}
+                            {content.carrotVisionData.summary}
                           </p>
                         </div>
 
@@ -1238,27 +1252,29 @@ export default function App() {
                           <button
                             type="button"
                             onClick={() =>
-                              handleRequestDemo('Carrot Vision AI — Industrial HSE & Video AI')
+                              handleRequestDemo(
+                                `${content.ecosystemServices[0].name} — ${content.ecosystemServices[0].category}`,
+                              )
                             }
                             className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md bg-[#0B34D6] px-5 py-2.5 text-xs font-semibold text-white whitespace-nowrap shrink-0 transition-colors hover:bg-[#06249E]"
                           >
-                            <span>Request Carrot Vision Demo</span>
-                            <ArrowRight className="h-3.5 w-3.5" />
+                            <span>{t.ecosystem.carrot.cta}</span>
+                            <ArrowRight className={`h-3.5 w-3.5 ${arrowDirClass}`} />
                           </button>
                         </div>
                       </div>
 
                       <div
                         role="tablist"
-                        aria-label="Carrot Vision QHSE details"
+                        aria-label={t.ecosystem.deepDiveTabs.carrot}
                         className="flex flex-wrap gap-2 border-b border-slate-200 bg-[#F8FAFC] px-6 py-3.5 sm:px-8"
                       >
                         {(
                           [
-                            {id: 'architecture', label: 'Workflow & Advantages'},
-                            {id: 'modules', label: '18+ Safety Modules'},
-                            {id: 'standards', label: 'Standards & HSE KPIs'},
-                            {id: 'proof', label: 'Control Room & Site Proof'},
+                            {id: 'architecture', label: t.ecosystem.carrot.tabs.architecture},
+                            {id: 'modules', label: t.ecosystem.carrot.tabs.modules},
+                            {id: 'standards', label: t.ecosystem.carrot.tabs.standards},
+                            {id: 'proof', label: t.ecosystem.carrot.tabs.proof},
                           ] as const
                         ).map((tab) => {
                           const isSelected = carrotTab === tab.id;
@@ -1272,7 +1288,7 @@ export default function App() {
                               className={`min-h-[40px] rounded-md px-3.5 py-2 text-xs font-medium whitespace-nowrap shrink-0 transition-colors duration-150 sm:text-sm ${
                                 isSelected
                                   ? 'bg-[#040B29] text-white'
-                                  : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:text-[#040B29]'
+                                  : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-[#040B29]'
                               }`}
                             >
                               {tab.label}
@@ -1285,10 +1301,10 @@ export default function App() {
                         {carrotTab === 'architecture' && (
                           <div className="space-y-8">
                             <div className="grid grid-cols-1 gap-6 border-b border-slate-200 pb-8 md:grid-cols-3">
-                              {CARROT_VISION_DATA.automatedAssistantPillars.map((pillar, idx) => (
+                              {content.carrotVisionData.automatedAssistantPillars.map((pillar, idx) => (
                                 <div key={pillar.title} className="min-w-0">
                                   <div className="font-mono text-xs font-medium text-[#0B34D6]">
-                                    0{idx + 1} · Digital Safety Assistant
+                                    0{idx + 1} · {t.ecosystem.carrot.pillarPrefix}
                                   </div>
                                   <h3 className="mt-1.5 font-display text-lg font-bold text-[#040B29]">
                                     {pillar.title}
@@ -1302,10 +1318,10 @@ export default function App() {
 
                             <div>
                               <h3 className="font-display text-base font-bold text-[#040B29]">
-                                Simple 4-Step Workflow on Existing Cameras
+                                {t.ecosystem.carrot.workflowHeading}
                               </h3>
                               <div className="mt-4 grid grid-cols-1 gap-6 border-b border-slate-200 pb-8 sm:grid-cols-2 lg:grid-cols-4">
-                                {CARROT_VISION_DATA.workflowSteps.map((step) => (
+                                {content.carrotVisionData.workflowSteps.map((step) => (
                                   <div key={step.step} className="min-w-0">
                                     <div className="font-mono text-sm font-semibold text-[#0B34D6]">
                                       {step.step}
@@ -1323,10 +1339,10 @@ export default function App() {
 
                             <div>
                               <h3 className="font-display text-base font-bold text-[#040B29]">
-                                Why HSE Leaders Choose Carrot Vision
+                                {t.ecosystem.carrot.whyHeading}
                               </h3>
                               <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-                                {CARROT_VISION_DATA.differentiators.map((diff) => (
+                                {content.carrotVisionData.differentiators.map((diff) => (
                                   <div key={diff.index} className="min-w-0">
                                     <div className="font-mono text-xs font-medium text-slate-500">
                                       {diff.index}
@@ -1346,13 +1362,15 @@ export default function App() {
 
                         {carrotTab === 'modules' && (
                           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                            {CARROT_VISION_DATA.suites.map((suite, suiteIdx) => (
+                            {content.carrotVisionData.suites.map((suite, suiteIdx) => (
                               <div
                                 key={suite.id}
                                 className={`min-w-0 ${
                                   suiteIdx >= 2 ? 'border-t border-slate-200 pt-6' : ''
                                 } ${
-                                  suiteIdx === 1 ? 'border-t border-slate-200 pt-6 md:border-t-0 md:pt-0' : ''
+                                  suiteIdx === 1
+                                    ? 'border-t border-slate-200 pt-6 md:border-t-0 md:pt-0'
+                                    : ''
                                 }`}
                               >
                                 <div className="font-mono text-xs font-medium text-[#0B34D6]">
@@ -1388,21 +1406,21 @@ export default function App() {
                             <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-end">
                               <div>
                                 <p className="text-xs font-medium text-[#0B34D6]">
-                                  Strategic HSE System Benefits
+                                  {t.ecosystem.carrot.standardsEyebrow}
                                 </p>
                                 <h3 className="mt-1 font-display text-xl font-bold text-[#040B29]">
-                                  Measurable impact on global safety standards &amp; Proactive, Active, and Predictive HSE KPIs
+                                  {t.ecosystem.carrot.standardsHeading}
                                 </h3>
                               </div>
                               <span className="font-mono text-xs text-slate-500 whitespace-nowrap shrink-0">
-                                Visual RCA &amp; CAPA Ready
+                                {t.ecosystem.carrot.standardsBadge}
                               </span>
                             </div>
 
                             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-                              {CARROT_VISION_DATA.standards.map((std) => (
+                              {content.carrotVisionData.standards.map((std) => (
                                 <div key={std.code} className="min-w-0 border-b border-slate-100 pb-6">
-                                  <div className="font-mono text-xs font-semibold text-[#0B34D6]">
+                                  <div dir="ltr" className={`font-mono text-xs font-semibold text-[#0B34D6] ${isRtl ? 'text-right' : 'text-left'}`}>
                                     {std.code}
                                   </div>
                                   <h4 className="mt-1.5 font-display text-lg font-bold text-[#040B29]">
@@ -1420,10 +1438,10 @@ export default function App() {
                         {carrotTab === 'proof' && (
                           <div className="space-y-8">
                             <div className="grid grid-cols-1 gap-6 border-b border-slate-200 pb-8 lg:grid-cols-3">
-                              {CARROT_VISION_DATA.controlRoomCapabilities.map((cap, idx) => (
+                              {content.carrotVisionData.controlRoomCapabilities.map((cap, idx) => (
                                 <div key={cap.title} className="min-w-0">
                                   <div className="font-mono text-xs font-medium text-[#0B34D6]">
-                                    0{idx + 1} · Central Control
+                                    0{idx + 1} · {t.ecosystem.carrot.controlPrefix}
                                   </div>
                                   <h3 className="mt-1.5 font-display text-base font-bold text-[#040B29]">
                                     {cap.title}
@@ -1437,10 +1455,10 @@ export default function App() {
 
                             <div>
                               <h3 className="font-display text-base font-bold text-[#040B29]">
-                                Verified Field &amp; Thermal Site Proof
+                                {t.ecosystem.carrot.proofHeading}
                               </h3>
                               <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2">
-                                {CARROT_VISION_DATA.liveSiteProofs.map((proof) => (
+                                {content.carrotVisionData.liveSiteProofs.map((proof) => (
                                   <div
                                     key={proof.title}
                                     className="min-w-0 border-b border-slate-100 pb-5"
@@ -1478,16 +1496,16 @@ export default function App() {
                       <div className="flex flex-col justify-between gap-6 border-b border-slate-200 p-6 sm:p-8 lg:flex-row lg:items-end">
                         <div className="max-w-3xl">
                           <p className="text-xs font-medium text-[#0B34D6]">
-                            {SMART_ATTENDANCE_DATA.eyebrow}
+                            {content.smartAttendanceData.eyebrow}
                           </p>
                           <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl [text-wrap:balance]">
-                            {SMART_ATTENDANCE_DATA.title}
+                            {content.smartAttendanceData.title}
                           </h2>
                           <p className="mt-2 text-sm font-medium text-slate-800">
-                            {SMART_ATTENDANCE_DATA.tagline}
+                            {content.smartAttendanceData.tagline}
                           </p>
                           <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                            {SMART_ATTENDANCE_DATA.summary}
+                            {content.smartAttendanceData.summary}
                           </p>
                         </div>
 
@@ -1496,27 +1514,27 @@ export default function App() {
                             type="button"
                             onClick={() =>
                               handleRequestDemo(
-                                'Smart Employee Attendance & HR Reporting — Smart Workplace & HR AI',
+                                `${content.ecosystemServices[6].name} — ${content.ecosystemServices[6].category}`,
                               )
                             }
                             className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md bg-[#0B34D6] px-5 py-2.5 text-xs font-semibold text-white whitespace-nowrap shrink-0 transition-colors hover:bg-[#06249E]"
                           >
-                            <span>Request HR Attendance Demo</span>
-                            <ArrowRight className="h-3.5 w-3.5" />
+                            <span>{t.ecosystem.attendance.cta}</span>
+                            <ArrowRight className={`h-3.5 w-3.5 ${arrowDirClass}`} />
                           </button>
                         </div>
                       </div>
 
                       <div
                         role="tablist"
-                        aria-label="Smart Employee Attendance details"
+                        aria-label={t.ecosystem.deepDiveTabs.attendance}
                         className="flex flex-wrap gap-2 border-b border-slate-200 bg-[#F8FAFC] px-6 py-3.5 sm:px-8"
                       >
                         {(
                           [
-                            {id: 'overview', label: 'Savings & 4-Step Setup'},
-                            {id: 'hr-tools', label: 'Daily HR & Shift Tools'},
-                            {id: 'comparison', label: 'In-House vs. Cloud'},
+                            {id: 'overview', label: t.ecosystem.attendance.tabs.overview},
+                            {id: 'hr-tools', label: t.ecosystem.attendance.tabs.hrTools},
+                            {id: 'comparison', label: t.ecosystem.attendance.tabs.comparison},
                           ] as const
                         ).map((tab) => {
                           const isSelected = attendanceTab === tab.id;
@@ -1530,7 +1548,7 @@ export default function App() {
                               className={`min-h-[40px] rounded-md px-3.5 py-2 text-xs font-medium whitespace-nowrap shrink-0 transition-colors duration-150 sm:text-sm ${
                                 isSelected
                                   ? 'bg-[#040B29] text-white'
-                                  : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:text-[#040B29]'
+                                  : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-[#040B29]'
                               }`}
                             >
                               {tab.label}
@@ -1543,9 +1561,14 @@ export default function App() {
                         {attendanceTab === 'overview' && (
                           <div className="space-y-8">
                             <div className="grid grid-cols-1 gap-6 border-b border-slate-200 pb-8 md:grid-cols-3">
-                              {SMART_ATTENDANCE_DATA.savingsMetrics.map((metric) => (
+                              {content.smartAttendanceData.savingsMetrics.map((metric) => (
                                 <div key={metric.label} className="min-w-0">
-                                  <div className="font-mono text-2xl font-bold text-[#0B34D6] sm:text-3xl">
+                                  <div
+                                    dir="ltr"
+                                    className={`font-mono text-2xl font-bold text-[#0B34D6] sm:text-3xl ${
+                                      isRtl ? 'text-right' : 'text-left'
+                                    }`}
+                                  >
                                     {metric.value}
                                   </div>
                                   <h3 className="mt-1.5 font-display text-base font-bold text-[#040B29]">
@@ -1560,10 +1583,10 @@ export default function App() {
 
                             <div>
                               <h3 className="font-display text-base font-bold text-[#040B29]">
-                                Easy Setup in 4 Simple Steps (Zero Disruption)
+                                {t.ecosystem.attendance.setupHeading}
                               </h3>
                               <div className="mt-4 grid grid-cols-1 gap-6 border-b border-slate-200 pb-8 sm:grid-cols-2 lg:grid-cols-4">
-                                {SMART_ATTENDANCE_DATA.setupSteps.map((step) => (
+                                {content.smartAttendanceData.setupSteps.map((step) => (
                                   <div key={step.step} className="min-w-0">
                                     <div className="font-mono text-sm font-semibold text-[#0B34D6]">
                                       {step.step}
@@ -1581,13 +1604,13 @@ export default function App() {
 
                             <div>
                               <h3 className="font-display text-base font-bold text-[#040B29]">
-                                Replaces Fingerprint Punch Machines
+                                {t.ecosystem.attendance.replacesHeading}
                               </h3>
                               <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-3">
-                                {SMART_ATTENDANCE_DATA.challengesReplaced.map((item, idx) => (
+                                {content.smartAttendanceData.challengesReplaced.map((item, idx) => (
                                   <div key={item.title} className="min-w-0">
                                     <div className="font-mono text-xs font-medium text-slate-500">
-                                      0{idx + 1} · Challenge Solved
+                                      0{idx + 1} · {t.ecosystem.attendance.replacesPrefix}
                                     </div>
                                     <div className="mt-1 font-display text-sm font-bold text-[#040B29]">
                                       {item.title}
@@ -1604,10 +1627,10 @@ export default function App() {
 
                         {attendanceTab === 'hr-tools' && (
                           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-                            {SMART_ATTENDANCE_DATA.hrCapabilities.map((cap, idx) => (
+                            {content.smartAttendanceData.hrCapabilities.map((cap, idx) => (
                               <div key={cap.title} className="min-w-0 border-b border-slate-100 pb-6">
                                 <div className="font-mono text-xs font-medium text-[#0B34D6]">
-                                  0{idx + 1} · HR &amp; Shift Control
+                                  0{idx + 1} · {t.ecosystem.attendance.hrPrefix}
                                 </div>
                                 <h3 className="mt-1.5 font-display text-lg font-bold text-[#040B29]">
                                   {cap.title}
@@ -1622,26 +1645,30 @@ export default function App() {
 
                         {attendanceTab === 'comparison' && (
                           <div className="overflow-x-auto">
-                            <table className="w-full min-w-[540px] border-collapse text-left text-sm">
+                            <table className="w-full min-w-[540px] border-collapse text-start text-sm">
                               <thead>
                                 <tr className="border-b border-slate-200 text-xs font-semibold text-slate-500">
-                                  <th className="py-3 pr-4">Comparison Point</th>
-                                  <th className="bg-[#F8FAFC] px-4 py-3 text-[#0B34D6]">
-                                    Our In-House System
+                                  <th className="py-3 pe-4 text-start">
+                                    {t.ecosystem.attendance.tableHeaders.point}
                                   </th>
-                                  <th className="py-3 pl-4">Standard Cloud Subscriptions</th>
+                                  <th className="bg-[#F8FAFC] px-4 py-3 text-start text-[#0B34D6]">
+                                    {t.ecosystem.attendance.tableHeaders.inHouse}
+                                  </th>
+                                  <th className="py-3 ps-4 text-start">
+                                    {t.ecosystem.attendance.tableHeaders.cloud}
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-slate-100">
-                                {SMART_ATTENDANCE_DATA.comparison.map((row) => (
+                                {content.smartAttendanceData.comparison.map((row) => (
                                   <tr key={row.point}>
-                                    <td className="py-4 pr-4 font-semibold text-[#040B29]">
+                                    <td className="py-4 pe-4 font-semibold text-[#040B29]">
                                       {row.point}
                                     </td>
                                     <td className="bg-[#F8FAFC] px-4 py-4 font-medium text-[#040B29]">
                                       {row.inHouse}
                                     </td>
-                                    <td className="py-4 pl-4 text-slate-600">{row.cloud}</td>
+                                    <td className="py-4 ps-4 text-slate-600">{row.cloud}</td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -1657,16 +1684,16 @@ export default function App() {
                       <div className="flex flex-col justify-between gap-6 border-b border-slate-200 p-6 sm:p-8 lg:flex-row lg:items-end">
                         <div className="max-w-3xl">
                           <p className="text-xs font-medium text-[#0B34D6]">
-                            {RETAIL_COMMAND_DATA.eyebrow}
+                            {content.retailCommandData.eyebrow}
                           </p>
                           <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl [text-wrap:balance]">
-                            {RETAIL_COMMAND_DATA.title}
+                            {content.retailCommandData.title}
                           </h2>
                           <p className="mt-2 text-sm font-medium text-slate-800">
-                            {RETAIL_COMMAND_DATA.tagline}
+                            {content.retailCommandData.tagline}
                           </p>
                           <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                            {RETAIL_COMMAND_DATA.summary}
+                            {content.retailCommandData.summary}
                           </p>
                         </div>
 
@@ -1675,27 +1702,27 @@ export default function App() {
                             type="button"
                             onClick={() =>
                               handleRequestDemo(
-                                'Retail Command & Virtual Manager — Retail AI & Virtual Manager',
+                                `${content.ecosystemServices[7].name} — ${content.ecosystemServices[7].category}`,
                               )
                             }
                             className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md bg-[#0B34D6] px-5 py-2.5 text-xs font-semibold text-white whitespace-nowrap shrink-0 transition-colors hover:bg-[#06249E]"
                           >
-                            <span>Request Virtual Manager Demo</span>
-                            <ArrowRight className="h-3.5 w-3.5" />
+                            <span>{t.ecosystem.retail.cta}</span>
+                            <ArrowRight className={`h-3.5 w-3.5 ${arrowDirClass}`} />
                           </button>
                         </div>
                       </div>
 
                       <div
                         role="tablist"
-                        aria-label="Retail Command & Virtual Manager details"
+                        aria-label={t.ecosystem.deepDiveTabs.retail}
                         className="flex flex-wrap gap-2 border-b border-slate-200 bg-[#F8FAFC] px-6 py-3.5 sm:px-8"
                       >
                         {(
                           [
-                            {id: 'architecture', label: 'Dual-Camera & POS Architecture'},
-                            {id: 'virtual-manager', label: 'Virtual Manager Command'},
-                            {id: 'roi', label: 'Business Impact & ROI'},
+                            {id: 'architecture', label: t.ecosystem.retail.tabs.architecture},
+                            {id: 'virtual-manager', label: t.ecosystem.retail.tabs.virtualManager},
+                            {id: 'roi', label: t.ecosystem.retail.tabs.roi},
                           ] as const
                         ).map((tab) => {
                           const isSelected = retailTab === tab.id;
@@ -1709,7 +1736,7 @@ export default function App() {
                               className={`min-h-[40px] rounded-md px-3.5 py-2 text-xs font-medium whitespace-nowrap shrink-0 transition-colors duration-150 sm:text-sm ${
                                 isSelected
                                   ? 'bg-[#040B29] text-white'
-                                  : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:text-[#040B29]'
+                                  : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-[#040B29]'
                               }`}
                             >
                               {tab.label}
@@ -1722,7 +1749,7 @@ export default function App() {
                         {retailTab === 'architecture' && (
                           <div className="space-y-8">
                             <div className="grid grid-cols-1 gap-6 border-b border-slate-200 pb-8 lg:grid-cols-3">
-                              {RETAIL_COMMAND_DATA.architecturePillars.map((pillar) => (
+                              {content.retailCommandData.architecturePillars.map((pillar) => (
                                 <div key={pillar.index} className="min-w-0">
                                   <div className="font-mono text-xs font-medium text-[#0B34D6]">
                                     {pillar.index} · {pillar.subtitle}
@@ -1740,23 +1767,23 @@ export default function App() {
                             <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-8 md:flex-row md:items-center">
                               <div>
                                 <div className="text-xs font-medium text-[#0B34D6]">
-                                  The True Conversion Metric
+                                  {t.ecosystem.retail.trueCrEyebrow}
                                 </div>
                                 <h3 className="mt-1 font-display text-lg font-bold text-[#040B29]">
-                                  A verified baseline removing staff entries from total footfall
+                                  {t.ecosystem.retail.trueCrTitle}
                                 </h3>
                               </div>
                               <div className="rounded-lg border border-slate-200 bg-[#F8FAFC] px-4 py-3 font-mono text-xs font-semibold text-[#040B29] sm:text-sm">
-                                {RETAIL_COMMAND_DATA.conversionFormula}
+                                {content.retailCommandData.conversionFormula}
                               </div>
                             </div>
 
                             <div>
                               <h3 className="font-display text-base font-bold text-[#040B29]">
-                                Blind Spots Solved in Multi-Branch Retail
+                                {t.ecosystem.retail.blindSpotsHeading}
                               </h3>
                               <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-3">
-                                {RETAIL_COMMAND_DATA.blindSpotsSolved.map((item) => (
+                                {content.retailCommandData.blindSpotsSolved.map((item) => (
                                   <div key={item.index} className="min-w-0">
                                     <div className="font-mono text-xs font-medium text-slate-500">
                                       {item.index}
@@ -1776,13 +1803,13 @@ export default function App() {
 
                         {retailTab === 'virtual-manager' && (
                           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                            {RETAIL_COMMAND_DATA.virtualManagerCapabilities.map((cap) => (
+                            {content.retailCommandData.virtualManagerCapabilities.map((cap) => (
                               <div
                                 key={cap.index}
                                 className="min-w-0 border-b border-slate-100 pb-6 lg:border-b-0 lg:pb-0"
                               >
                                 <div className="font-mono text-xs font-medium text-[#0B34D6]">
-                                  {cap.index} · Executive Command
+                                  {cap.index} · {t.ecosystem.retail.executivePrefix}
                                 </div>
                                 <h3 className="mt-1.5 font-display text-lg font-bold text-[#040B29]">
                                   {cap.title}
@@ -1797,10 +1824,10 @@ export default function App() {
 
                         {retailTab === 'roi' && (
                           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-                            {RETAIL_COMMAND_DATA.businessImpact.map((impact) => (
+                            {content.retailCommandData.businessImpact.map((impact) => (
                               <div key={impact.index} className="min-w-0 border-b border-slate-100 pb-6">
                                 <div className="font-mono text-xs font-medium text-[#0B34D6]">
-                                  {impact.index} · Operational Discipline
+                                  {impact.index} · {t.ecosystem.retail.roiPrefix}
                                 </div>
                                 <h3 className="mt-1.5 font-display text-lg font-bold text-[#040B29]">
                                   {impact.title}
@@ -1826,22 +1853,28 @@ export default function App() {
           {activeRouteId === 'solutions' && (
             <>
               <PageHeaderBanner
-                breadcrumbLabel="Our Solutions"
-                eyebrow="Industry Solutions Hub · Egypt & Saudi Arabia"
-                title="ONVIF AI Video Analytics, LPR Gate Control & Retail Footfall Counting in Egypt"
-                description="Turnkey computer vision and decision intelligence blueprints built for high-stakes manufacturing, healthcare, malls, residential compounds, and multi-branch retail."
+                breadcrumbLabel={t.solutions.breadcrumb}
+                eyebrow={t.solutions.eyebrow}
+                title={t.solutions.title}
+                description={t.solutions.description}
                 onNavigateHome={() => navigateToRoute('top')}
-                onRequestDemo={() => handleRequestDemo(`${activeVertical.name} Solutions`)}
+                onRequestDemo={() =>
+                  handleRequestDemo(
+                    t.contact.solutionsSuffix
+                      ? `${activeVertical.name} ${t.contact.solutionsSuffix}`
+                      : activeVertical.name,
+                  )
+                }
               />
 
               <section className="border-b border-slate-200 bg-white py-12 sm:py-16">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                   <div
                     role="tablist"
-                    aria-label="Select industry vertical"
+                    aria-label={t.solutions.sectorFocus}
                     className="flex flex-wrap gap-2 border-b border-slate-200 pb-4"
                   >
-                    {VERTICAL_SOLUTIONS.map((vertical) => {
+                    {content.verticalSolutions.map((vertical) => {
                       const selected = vertical.id === activeVertical.id;
                       return (
                         <button
@@ -1864,7 +1897,9 @@ export default function App() {
 
                   <div className="mt-8 grid grid-cols-1 gap-8 sm:mt-10 lg:grid-cols-12 lg:gap-10">
                     <div className="min-w-0 lg:col-span-5">
-                      <p className="text-xs font-medium text-slate-500">Sector Focus</p>
+                      <p className="text-xs font-medium text-slate-500">
+                        {t.solutions.sectorFocus}
+                      </p>
                       <h2 className="mt-2 font-display text-2xl font-bold text-[#040B29]">
                         {activeVertical.name}
                       </h2>
@@ -1877,7 +1912,7 @@ export default function App() {
 
                       <div className="mt-8 border-t border-slate-200 pt-6">
                         <h3 className="text-sm font-semibold text-[#040B29]">
-                          Operational Challenges Solved
+                          {t.solutions.challengesHeading}
                         </h3>
                         <ul className="mt-3 space-y-2.5">
                           {activeVertical.challenges.map((challenge) => (
@@ -1898,11 +1933,20 @@ export default function App() {
                       <div className="mt-8">
                         <button
                           type="button"
-                          onClick={() => handleRequestDemo(`${activeVertical.name} Solutions`)}
+                          onClick={() =>
+                            handleRequestDemo(
+                              t.contact.solutionsSuffix
+                                ? `${activeVertical.name} ${t.contact.solutionsSuffix}`
+                                : activeVertical.name,
+                            )
+                          }
                           className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-md bg-[#040B29] px-5 py-2.5 text-sm font-medium text-white whitespace-nowrap shrink-0 transition-colors hover:bg-[#0B34D6] sm:w-auto"
                         >
-                          <span>Discuss {activeVertical.name} Deployment</span>
-                          <ArrowRight className="h-4 w-4" />
+                          <span>
+                            {t.solutions.discussPrefix} {activeVertical.name}
+                            {t.solutions.discussSuffix ? ` ${t.solutions.discussSuffix}` : ''}
+                          </span>
+                          <ArrowRight className={`h-4 w-4 ${arrowDirClass}`} />
                         </button>
                       </div>
                     </div>
@@ -1910,15 +1954,15 @@ export default function App() {
                     <div className="min-w-0 space-y-4 lg:col-span-7">
                       <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
                         <ResilientImage
-                          src={SECTION_IMAGES.solutionsFacility.src}
-                          alt={SECTION_IMAGES.solutionsFacility.alt}
+                          src={content.sectionImages.solutionsFacility.src}
+                          alt={content.sectionImages.solutionsFacility.alt}
                           fallbackTitle={activeVertical.name}
                           className="aspect-[16/10] w-full object-cover object-center sm:aspect-[16/9]"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#040B29]/85 via-[#040B29]/20 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5">
                           <p className="text-xs font-medium text-[#BDE5F6]">
-                            Turnkey Facility Intelligence
+                            {t.solutions.facilityEyebrow}
                           </p>
                           <p className="mt-0.5 font-display text-sm font-semibold sm:text-base">
                             {activeVertical.name} — {activeVertical.tagline}
@@ -1954,19 +1998,17 @@ export default function App() {
                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                       <div>
                         <p className="text-xs font-medium text-[#0B34D6]">
-                          Dedicated Architecture Pages by Role
+                          {t.solutions.subpagesEyebrow}
                         </p>
                         <h2 className="mt-1 font-display text-xl font-bold text-[#040B29] sm:text-2xl">
-                          Explore tailored AI blueprints for your operational mandate
+                          {t.solutions.subpagesHeading}
                         </h2>
                       </div>
-                      <span className="text-xs text-slate-500">
-                        4 dedicated solution pages · Egypt &amp; MEA
-                      </span>
+                      <span className="text-xs text-slate-500">{t.solutions.subpagesCountLabel}</span>
                     </div>
 
                     <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                      {SOLUTION_SUBPAGES.map((sub) => (
+                      {localizedSubpages.map((sub) => (
                         <a
                           key={sub.id}
                           href={sub.slug}
@@ -1988,8 +2030,8 @@ export default function App() {
                             </p>
                           </div>
                           <div className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[#040B29] group-hover:text-[#0B34D6]">
-                            <span>Open Solution Page</span>
-                            <ArrowRight className="h-3.5 w-3.5" />
+                            <span>{t.solutions.openSubpage}</span>
+                            <ArrowRight className={`h-3.5 w-3.5 ${arrowDirClass}`} />
                           </div>
                         </a>
                       ))}
@@ -2006,13 +2048,15 @@ export default function App() {
           {activeRouteId === 'success-stories' && (
             <>
               <PageHeaderBanner
-                breadcrumbLabel="Case Studies"
-                eyebrow="Field Deployments & POC Proof · Egypt & MEA"
-                title="Verified ROI across 5 Egyptian industry deployments"
-                description="Real production environments—from cement kilns, heavy manufacturing, and mechanical workshops to gas transport fleets and multi-branch fashion retail."
+                breadcrumbLabel={t.caseStudies.breadcrumb}
+                eyebrow={t.caseStudies.eyebrow}
+                title={t.caseStudies.title}
+                description={t.caseStudies.description}
                 onNavigateHome={() => navigateToRoute('top')}
-                onRequestDemo={() => handleRequestDemo(`POC Request: ${activeStory.sector}`)}
-                ctaLabel="Book a Site POC"
+                onRequestDemo={() =>
+                  handleRequestDemo(`${t.contact.pocPrefix} ${activeStory.sector}`)
+                }
+                ctaLabel={t.caseStudies.ctaLabel}
               />
 
               <section className="bg-[#040B29] py-12 text-white sm:py-16">
@@ -2020,7 +2064,7 @@ export default function App() {
                   <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-12">
                     {/* Story Selector List */}
                     <div className="flex min-w-0 flex-col gap-3 lg:col-span-5">
-                      {SUCCESS_STORIES.map((story) => {
+                      {content.successStories.map((story) => {
                         const isCurrent = story.id === activeStory.id;
                         const StoryIcon = STORY_ICONS[story.iconKey];
                         return (
@@ -2035,7 +2079,7 @@ export default function App() {
                             <button
                               type="button"
                               onClick={() => setSelectedStoryId(story.id)}
-                              className="w-full text-left"
+                              className="w-full text-start"
                             >
                               <div className="flex items-start gap-3">
                                 <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-white/15 bg-white/5 text-[#BDE5F6]">
@@ -2060,11 +2104,15 @@ export default function App() {
                             <div className="mt-3 flex items-center justify-end border-t border-white/10 pt-2.5">
                               <button
                                 type="button"
-                                onClick={() => handleRequestDemo(`POC Request: ${story.sector}`)}
+                                onClick={() =>
+                                  handleRequestDemo(`${t.contact.pocPrefix} ${story.sector}`)
+                                }
                                 className="inline-flex items-center gap-1 text-xs font-medium text-[#BDE5F6] transition-colors hover:text-white hover:underline"
                               >
-                                <span>Book POC for {story.sector}</span>
-                                <ArrowRight className="h-3 w-3" />
+                                <span>
+                                  {t.caseStudies.bookPocPrefix} {story.sector}
+                                </span>
+                                <ArrowRight className={`h-3 w-3 ${arrowDirClass}`} />
                               </button>
                             </div>
                           </div>
@@ -2076,8 +2124,8 @@ export default function App() {
                     <div className="flex min-w-0 flex-col justify-between overflow-hidden rounded-xl border border-white/15 bg-[#08164D] lg:col-span-7">
                       <div className="relative h-48 w-full overflow-hidden border-b border-white/10 sm:h-60">
                         <ResilientImage
-                          src={SECTION_IMAGES.storiesCementFleet.src}
-                          alt={SECTION_IMAGES.storiesCementFleet.alt}
+                          src={content.sectionImages.storiesCementFleet.src}
+                          alt={content.sectionImages.storiesCementFleet.alt}
                           fallbackTitle={activeStory.sector}
                           className="h-full w-full object-cover object-center"
                         />
@@ -2105,7 +2153,7 @@ export default function App() {
 
                           <div className="mt-7 border-t border-white/10 pt-6">
                             <h3 className="text-xs font-semibold tracking-wide text-[#BDE5F6]">
-                              Deployed Capabilities
+                              {t.caseStudies.deployedCapabilities}
                             </h3>
                             <ul className="mt-4 space-y-3">
                               {activeStory.solutionPoints.map((point) => (
@@ -2127,11 +2175,13 @@ export default function App() {
                           </p>
                           <button
                             type="button"
-                            onClick={() => handleRequestDemo(`POC Request: ${activeStory.sector}`)}
+                            onClick={() =>
+                              handleRequestDemo(`${t.contact.pocPrefix} ${activeStory.sector}`)
+                            }
                             className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md bg-white px-4 py-2 text-xs font-semibold text-[#040B29] whitespace-nowrap shrink-0 transition-colors hover:bg-[#BDE5F6]"
                           >
-                            <span>Book a POC for This Use Case</span>
-                            <ArrowRight className="h-3.5 w-3.5" />
+                            <span>{t.caseStudies.bookSelectedPoc}</span>
+                            <ArrowRight className={`h-3.5 w-3.5 ${arrowDirClass}`} />
                           </button>
                         </div>
                       </div>
@@ -2142,13 +2192,13 @@ export default function App() {
 
               <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
                 <div className="border-b border-slate-200 pb-6">
-                  <p className="text-xs font-medium text-[#0B34D6]">Trusted by Industry Leaders</p>
+                  <p className="text-xs font-medium text-[#0B34D6]">{t.caseStudies.clientsEyebrow}</p>
                   <h2 className="mt-1 font-display text-2xl font-bold text-[#040B29]">
-                    Enterprise clients running GSD AI systems in Egypt &amp; MEA
+                    {t.caseStudies.clientsHeading}
                   </h2>
                 </div>
                 <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                  {CUSTOMERS.map((customer) => (
+                  {content.customers.map((customer) => (
                     <div
                       key={`${customer.name}-${customer.sector}`}
                       className="flex min-w-0 flex-col justify-between rounded-xl border border-slate-200 bg-white p-5"
@@ -2156,7 +2206,7 @@ export default function App() {
                       <div className="flex h-16 items-center justify-center py-2">
                         <VendorLogo
                           src={customer.logoSrc}
-                          alt={`${customer.name} customer logo`}
+                          alt={`${customer.name} logo`}
                           name={customer.name}
                           className="max-h-12 w-auto max-w-[148px] object-contain"
                         />
@@ -2183,17 +2233,17 @@ export default function App() {
           {activeRouteId === 'customers' && (
             <>
               <PageHeaderBanner
-                breadcrumbLabel="Customers"
-                eyebrow="Trusted by Industry Leaders · Egypt & MEA"
-                title="Production deployments across Egyptian industrial, fleet & retail leaders"
-                description="From cement groups and energy logistics fleets to hospitals, hospitality resorts, and multi-branch fashion retail chains."
+                breadcrumbLabel={t.customers.breadcrumb}
+                eyebrow={t.customers.eyebrow}
+                title={t.customers.title}
+                description={t.customers.description}
                 onNavigateHome={() => navigateToRoute('top')}
                 onRequestDemo={() => handleRequestDemo()}
               />
 
               <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
-                  {CUSTOMERS.map((customer) => (
+                  {content.customers.map((customer) => (
                     <div
                       key={`${customer.name}-${customer.sector}`}
                       className="flex min-w-0 flex-col justify-between rounded-xl border border-slate-200 bg-white p-5"
@@ -2201,7 +2251,7 @@ export default function App() {
                       <div className="flex h-16 items-center justify-center py-2">
                         <VendorLogo
                           src={customer.logoSrc}
-                          alt={`${customer.name} customer logo`}
+                          alt={`${customer.name} logo`}
                           name={customer.name}
                           className="max-h-12 w-auto max-w-[148px] object-contain"
                         />
@@ -2228,8 +2278,8 @@ export default function App() {
                     }}
                     className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0B34D6] hover:underline"
                   >
-                    <span>Explore Detailed Success Stories &amp; POC Proof</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <span>{t.customers.exploreStoriesLink}</span>
+                    <ArrowRight className={`h-4 w-4 ${arrowDirClass}`} />
                   </a>
                 </div>
               </section>
@@ -2242,17 +2292,17 @@ export default function App() {
           {activeRouteId === 'partners' && (
             <>
               <PageHeaderBanner
-                breadcrumbLabel="Our Partners"
-                eyebrow="Authorized Technology Partnerships · Egypt & MEA"
-                title="Global AI & software leaders, engineered and deployed locally"
-                description="Authorized regional integration, local server engineering, and bilingual technical support across Egypt, Saudi Arabia, and the Middle East & Africa."
+                breadcrumbLabel={t.partners.breadcrumb}
+                eyebrow={t.partners.eyebrow}
+                title={t.partners.title}
+                description={t.partners.description}
                 onNavigateHome={() => navigateToRoute('top')}
                 onRequestDemo={() => handleRequestDemo()}
               />
 
               <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {PARTNERS.map((partner) => (
+                  {content.partners.map((partner) => (
                     <div
                       key={partner.name}
                       className="flex min-w-0 flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 transition-colors duration-150 hover:border-[#0B34D6]/40"
@@ -2285,7 +2335,7 @@ export default function App() {
                           className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B34D6] transition-colors hover:text-[#040B29] hover:underline"
                         >
                           <span>{partner.ecosystemCta}</span>
-                          <ArrowRight className="h-3.5 w-3.5" />
+                          <ArrowRight className={`h-3.5 w-3.5 ${arrowDirClass}`} />
                         </a>
                       </div>
                     </div>
@@ -2301,10 +2351,10 @@ export default function App() {
           {activeRouteId === 'contact' && (
             <>
               <PageHeaderBanner
-                breadcrumbLabel="Contact Us"
-                eyebrow="Your Partner in Digital Transformation · Maadi, Cairo"
-                title="Ready to transform your operations? Request a demo or site POC"
-                description="Let's build your AI-powered future together. Share your site footprint, camera environment, fleet size, or automation goals with our Cairo engineering team."
+                breadcrumbLabel={t.contact.breadcrumb}
+                eyebrow={t.contact.eyebrow}
+                title={t.contact.title}
+                description={t.contact.description}
                 onNavigateHome={() => navigateToRoute('top')}
               />
 
@@ -2315,18 +2365,16 @@ export default function App() {
                       <div className="mb-6 overflow-hidden rounded-xl border border-slate-200 bg-[#071A66]">
                         <ResilientImage
                           src="/assets/aistudio/logo-GSD_a8de37a5.jpg"
-                          alt="GSD Technologies Egypt — Digital Transformation Experts"
-                          fallbackTitle="GSD Technologies Egypt"
+                          alt={t.logoAlt}
+                          fallbackTitle={content.companyInfo.legalName}
                           className="block h-auto w-full object-contain"
                         />
                       </div>
                       <h2 className="font-display text-2xl font-bold tracking-tight text-[#040B29]">
-                        Direct Cairo Engineering &amp; Sales Contacts
+                        {t.contact.directHeading}
                       </h2>
                       <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                        Speak directly with our systems integration specialists in Maadi, Cairo for
-                        on-site CCTV compatibility audits, Carrot Vision POCs, DMS fleet trials,
-                        and Makkook optimization workshops.
+                        {t.contact.directBody}
                       </p>
 
                       <dl className="mt-8 space-y-5 border-t border-slate-200 pt-8 text-sm">
@@ -2334,10 +2382,10 @@ export default function App() {
                           <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-[#0B34D6]" />
                           <div className="min-w-0">
                             <dt className="font-semibold text-[#040B29]">
-                              {COMPANY_INFO.legalName}
+                              {content.companyInfo.legalName}
                             </dt>
                             <dd className="mt-0.5 break-words text-slate-600">
-                              {COMPANY_INFO.address}
+                              {content.companyInfo.address}
                             </dd>
                           </div>
                         </div>
@@ -2345,14 +2393,15 @@ export default function App() {
                           <Mail className="mt-0.5 h-4 w-4 shrink-0 text-[#0B34D6]" />
                           <div className="min-w-0">
                             <dt className="font-semibold text-[#040B29]">
-                              Sales &amp; Engineering Email
+                              {t.contact.emailLabel}
                             </dt>
                             <dd className="mt-0.5 font-mono text-slate-700">
                               <a
-                                href={`mailto:${COMPANY_INFO.email}`}
+                                dir="ltr"
+                                href={`mailto:${content.companyInfo.email}`}
                                 className="break-all hover:text-[#0B34D6] hover:underline"
                               >
-                                {COMPANY_INFO.email}
+                                {content.companyInfo.email}
                               </a>
                             </dd>
                           </div>
@@ -2360,13 +2409,18 @@ export default function App() {
                         <div className="flex items-start gap-3">
                           <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#0B34D6]" />
                           <div className="min-w-0">
-                            <dt className="font-semibold text-[#040B29]">Direct Telephone</dt>
+                            <dt className="font-semibold text-[#040B29]">
+                              {t.contact.phoneLabel}
+                            </dt>
                             <dd className="mt-1 flex flex-col gap-1 font-mono text-slate-700">
-                              {COMPANY_INFO.phones.map((phone) => (
+                              {content.companyInfo.phones.map((phone) => (
                                 <a
                                   key={phone}
+                                  dir="ltr"
                                   href={`tel:${phone}`}
-                                  className="hover:text-[#0B34D6] hover:underline"
+                                  className={`hover:text-[#0B34D6] hover:underline ${
+                                    isRtl ? 'text-right' : 'text-left'
+                                  }`}
                                 >
                                   {phone}
                                 </a>
@@ -2377,16 +2431,20 @@ export default function App() {
                         <div className="flex items-start gap-3">
                           <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#0B34D6]" />
                           <div className="min-w-0">
-                            <dt className="font-semibold text-[#040B29]">Business Hours</dt>
-                            <dd className="mt-0.5 text-slate-600">{COMPANY_INFO.hours}</dd>
+                            <dt className="font-semibold text-[#040B29]">
+                              {t.contact.hoursLabel}
+                            </dt>
+                            <dd className="mt-0.5 text-slate-600">{content.companyInfo.hours}</dd>
                           </div>
                         </div>
                         <div className="flex items-start gap-3">
                           <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#0B34D6]" />
                           <div className="min-w-0">
-                            <dt className="font-semibold text-[#040B29]">Website</dt>
-                            <dd className="mt-0.5 font-mono text-slate-600">
-                              {COMPANY_INFO.domain}
+                            <dt className="font-semibold text-[#040B29]">
+                              {t.contact.websiteLabel}
+                            </dt>
+                            <dd dir="ltr" className={`mt-0.5 font-mono text-slate-600 ${isRtl ? 'text-right' : 'text-left'}`}>
+                              {content.companyInfo.domain}
                             </dd>
                           </div>
                         </div>
@@ -2414,39 +2472,38 @@ export default function App() {
 
                             <h2 className="mt-5 font-display text-2xl font-bold text-[#040B29]">
                               {deliveryStatus === 'fallback'
-                                ? 'Complete sending via your email app'
-                                : `Inquiry emailed to ${COMPANY_INFO.email}`}
+                                ? t.contact.confirm.fallbackTitle
+                                : `${t.contact.confirm.sentTitlePrefix} ${content.companyInfo.email}`}
                             </h2>
 
                             {deliveryStatus === 'fallback' ? (
                               <p className="mt-2 text-sm leading-relaxed text-slate-700">
-                                Thank you,{' '}
+                                {t.contact.confirm.fallbackDescPart1}{' '}
                                 <span className="font-semibold text-[#040B29]">
                                   {submittedRecord.name}
                                 </span>
-                                . Direct web-to-mail relay could not complete from this network
-                                session. Click below to open your email application pre-addressed to{' '}
-                                <span className="font-mono font-semibold text-[#0B34D6]">
-                                  {COMPANY_INFO.email}
+                                {t.contact.confirm.fallbackDescPart2}{' '}
+                                <span dir="ltr" className="font-mono font-semibold text-[#0B34D6]">
+                                  {content.companyInfo.email}
                                 </span>{' '}
-                                with all of your entered details attached.
+                                {t.contact.confirm.fallbackDescPart3}
                               </p>
                             ) : (
                               <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                                Thank you,{' '}
+                                {t.contact.confirm.sentDescPart1}{' '}
                                 <span className="font-semibold text-[#040B29]">
                                   {submittedRecord.name}
                                 </span>
-                                . All submitted details for{' '}
+                                {t.contact.confirm.sentDescPart2}{' '}
                                 <span className="font-semibold text-[#040B29]">
                                   {submittedRecord.solution}
                                 </span>{' '}
-                                have been transmitted to{' '}
-                                <span className="font-mono font-semibold text-[#0B34D6]">
-                                  {COMPANY_INFO.email}
+                                {t.contact.confirm.sentDescPart3}{' '}
+                                <span dir="ltr" className="font-mono font-semibold text-[#0B34D6]">
+                                  {content.companyInfo.email}
                                 </span>
-                                . Our Maadi, Cairo engineering team will follow up at{' '}
-                                <span className="font-mono text-slate-800">
+                                {t.contact.confirm.sentDescPart4}{' '}
+                                <span dir="ltr" className="font-mono text-slate-800">
                                   {submittedRecord.email}
                                 </span>
                                 .
@@ -2455,32 +2512,50 @@ export default function App() {
 
                             <dl className="mt-6 grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 text-xs sm:grid-cols-2">
                               <div>
-                                <dt className="font-medium text-slate-500">Full Name</dt>
+                                <dt className="font-medium text-slate-500">
+                                  {t.contact.nameLabel.replace(' *', '')}
+                                </dt>
                                 <dd className="mt-0.5 font-semibold text-[#040B29]">
                                   {submittedRecord.name}
                                 </dd>
                               </div>
                               <div>
-                                <dt className="font-medium text-slate-500">Organization</dt>
+                                <dt className="font-medium text-slate-500">
+                                  {t.contact.companyLabel}
+                                </dt>
                                 <dd className="mt-0.5 font-semibold text-[#040B29]">
-                                  {submittedRecord.company || 'Not specified'}
+                                  {submittedRecord.company || t.contact.confirm.notSpecified}
                                 </dd>
                               </div>
                               <div>
-                                <dt className="font-medium text-slate-500">Work Email</dt>
-                                <dd className="mt-0.5 font-mono text-[#040B29]">
+                                <dt className="font-medium text-slate-500">
+                                  {t.contact.emailFieldLabel.replace(' *', '')}
+                                </dt>
+                                <dd
+                                  dir="ltr"
+                                  className={`mt-0.5 font-mono text-[#040B29] ${
+                                    isRtl ? 'text-right' : 'text-left'
+                                  }`}
+                                >
                                   {submittedRecord.email}
                                 </dd>
                               </div>
                               <div>
-                                <dt className="font-medium text-slate-500">Phone Number</dt>
-                                <dd className="mt-0.5 font-mono text-[#040B29]">
-                                  {submittedRecord.phone || 'Not specified'}
+                                <dt className="font-medium text-slate-500">
+                                  {t.contact.phoneFieldLabel}
+                                </dt>
+                                <dd
+                                  dir="ltr"
+                                  className={`mt-0.5 font-mono text-[#040B29] ${
+                                    isRtl ? 'text-right' : 'text-left'
+                                  }`}
+                                >
+                                  {submittedRecord.phone || t.contact.confirm.notSpecified}
                                 </dd>
                               </div>
                               <div className="sm:col-span-2">
                                 <dt className="font-medium text-slate-500">
-                                  Solution / Platform of Interest
+                                  {t.contact.solutionLabel}
                                 </dt>
                                 <dd className="mt-0.5 font-semibold text-[#040B29]">
                                   {submittedRecord.solution}
@@ -2489,7 +2564,7 @@ export default function App() {
                               {submittedRecord.notes && (
                                 <div className="sm:col-span-2">
                                   <dt className="font-medium text-slate-500">
-                                    Site Details &amp; Objectives
+                                    {t.contact.notesLabel}
                                   </dt>
                                   <dd className="mt-0.5 whitespace-pre-wrap text-slate-700">
                                     {submittedRecord.notes}
@@ -2501,7 +2576,12 @@ export default function App() {
 
                           <div className="mt-8 flex flex-wrap items-center gap-3">
                             <a
-                              href={buildSalesMailtoUrl(submittedRecord, submittedRecord.sourceUrl)}
+                              href={buildSalesMailtoUrl(
+                                submittedRecord,
+                                lang,
+                                content.companyInfo.email,
+                                submittedRecord.sourceUrl,
+                              )}
                               className={`inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold whitespace-nowrap shrink-0 transition-colors ${
                                 deliveryStatus === 'fallback'
                                   ? 'bg-[#0B34D6] text-white hover:bg-[#06249E]'
@@ -2511,8 +2591,8 @@ export default function App() {
                               <Mail className="h-4 w-4" />
                               <span>
                                 {deliveryStatus === 'fallback'
-                                  ? `Send Now to ${COMPANY_INFO.email}`
-                                  : 'Open Copy in Email App'}
+                                  ? `${t.contact.confirm.sendNowPrefix} ${content.companyInfo.email}`
+                                  : t.contact.confirm.openCopyInApp}
                               </span>
                             </a>
 
@@ -2535,8 +2615,8 @@ export default function App() {
                               className="min-h-[44px] rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-[#040B29] whitespace-nowrap shrink-0 hover:border-[#0B34D6] hover:text-[#0B34D6]"
                             >
                               {deliveryStatus === 'fallback'
-                                ? 'Edit Inquiry Details'
-                                : 'Send Another Inquiry'}
+                                ? t.contact.confirm.editDetails
+                                : t.contact.confirm.sendAnother}
                             </button>
                           </div>
                         </div>
@@ -2545,15 +2625,16 @@ export default function App() {
                           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-4">
                             <div>
                               <h2 className="font-display text-lg font-semibold text-[#040B29]">
-                                Send a Note or Request a Demo / POC
+                                {t.contact.formTitle}
                               </h2>
                               <p className="mt-0.5 text-xs text-slate-600">
-                                Dispatched directly to{' '}
+                                {t.contact.dispatchedTo}{' '}
                                 <a
-                                  href={buildSalesMailtoUrl(form)}
+                                  dir="ltr"
+                                  href={buildSalesMailtoUrl(form, lang, content.companyInfo.email)}
                                   className="font-mono font-medium text-[#0B34D6] hover:underline"
                                 >
-                                  {COMPANY_INFO.email}
+                                  {content.companyInfo.email}
                                 </a>
                               </p>
                             </div>
@@ -2566,7 +2647,7 @@ export default function App() {
                                 htmlFor="demo-name"
                                 className="block text-xs font-medium text-slate-700"
                               >
-                                Full Name *
+                                {t.contact.nameLabel}
                               </label>
                               <input
                                 ref={nameInputRef}
@@ -2577,7 +2658,7 @@ export default function App() {
                                 onChange={(e) =>
                                   setForm((prev) => ({...prev, name: e.target.value}))
                                 }
-                                placeholder="Ahmed Mansour"
+                                placeholder={t.contact.namePlaceholder}
                                 className="mt-1.5 w-full rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-[#0B132B] placeholder:text-slate-400 focus:border-[#0B34D6] focus:outline-none"
                               />
                               {formErrors.name && (
@@ -2592,7 +2673,7 @@ export default function App() {
                                 htmlFor="demo-company"
                                 className="block text-xs font-medium text-slate-700"
                               >
-                                Organization
+                                {t.contact.companyLabel}
                               </label>
                               <input
                                 id="demo-company"
@@ -2602,7 +2683,7 @@ export default function App() {
                                 onChange={(e) =>
                                   setForm((prev) => ({...prev, company: e.target.value}))
                                 }
-                                placeholder="Company or Plant Name"
+                                placeholder={t.contact.companyPlaceholder}
                                 className="mt-1.5 w-full rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-[#0B132B] placeholder:text-slate-400 focus:border-[#0B34D6] focus:outline-none"
                               />
                             </div>
@@ -2614,18 +2695,21 @@ export default function App() {
                                 htmlFor="demo-email"
                                 className="block text-xs font-medium text-slate-700"
                               >
-                                Work Email *
+                                {t.contact.emailFieldLabel}
                               </label>
                               <input
                                 id="demo-email"
                                 name="email"
                                 type="email"
+                                dir="ltr"
                                 value={form.email}
                                 onChange={(e) =>
                                   setForm((prev) => ({...prev, email: e.target.value}))
                                 }
-                                placeholder="name@company.com"
-                                className="mt-1.5 w-full rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-[#0B132B] placeholder:text-slate-400 focus:border-[#0B34D6] focus:outline-none"
+                                placeholder={t.contact.emailPlaceholder}
+                                className={`mt-1.5 w-full rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-[#0B132B] placeholder:text-slate-400 focus:border-[#0B34D6] focus:outline-none ${
+                                  isRtl ? 'text-right' : 'text-left'
+                                }`}
                               />
                               {formErrors.email && (
                                 <p className="mt-1 text-xs font-medium text-red-700">
@@ -2639,18 +2723,21 @@ export default function App() {
                                 htmlFor="demo-phone"
                                 className="block text-xs font-medium text-slate-700"
                               >
-                                Phone Number
+                                {t.contact.phoneFieldLabel}
                               </label>
                               <input
                                 id="demo-phone"
                                 name="phone"
                                 type="tel"
+                                dir="ltr"
                                 value={form.phone}
                                 onChange={(e) =>
                                   setForm((prev) => ({...prev, phone: e.target.value}))
                                 }
-                                placeholder="+20 10 ..."
-                                className="mt-1.5 w-full rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-[#0B132B] placeholder:text-slate-400 focus:border-[#0B34D6] focus:outline-none"
+                                placeholder={t.contact.phonePlaceholder}
+                                className={`mt-1.5 w-full rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-[#0B132B] placeholder:text-slate-400 focus:border-[#0B34D6] focus:outline-none ${
+                                  isRtl ? 'text-right' : 'text-left'
+                                }`}
                               />
                               {formErrors.phone && (
                                 <p className="mt-1 text-xs font-medium text-red-700">
@@ -2665,7 +2752,7 @@ export default function App() {
                               htmlFor="demo-solution"
                               className="block text-xs font-medium text-slate-700"
                             >
-                              Solution or Platform of Interest
+                              {t.contact.solutionLabel}
                             </label>
                             <select
                               id="demo-solution"
@@ -2676,13 +2763,11 @@ export default function App() {
                               }
                               className="mt-1.5 min-h-[44px] w-full rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-[#0B132B] focus:border-[#0B34D6] focus:outline-none"
                             >
-                              {!KNOWN_SOLUTION_OPTIONS.has(form.solution) && (
+                              {!activeKnownOptions.has(form.solution) && (
                                 <option value={form.solution}>{form.solution}</option>
                               )}
-                              <option value="General AI & Video Analytics Inquiry">
-                                General AI &amp; Video Analytics Inquiry
-                              </option>
-                              {ECOSYSTEM_SERVICES.map((service) => {
+                              <option value={t.contact.generalOption}>{t.contact.generalOption}</option>
+                              {content.ecosystemServices.map((service) => {
                                 const optionValue = `${service.name} — ${service.category}`;
                                 return (
                                   <option key={service.id} value={optionValue}>
@@ -2690,16 +2775,18 @@ export default function App() {
                                   </option>
                                 );
                               })}
-                              {VERTICAL_SOLUTIONS.map((vertical) => {
-                                const optionValue = `${vertical.name} Solutions`;
+                              {content.verticalSolutions.map((vertical) => {
+                                const optionValue = t.contact.solutionsSuffix
+                                  ? `${vertical.name} ${t.contact.solutionsSuffix}`
+                                  : vertical.name;
                                 return (
                                   <option key={vertical.id} value={optionValue}>
                                     {optionValue}
                                   </option>
                                 );
                               })}
-                              {SUCCESS_STORIES.map((story) => {
-                                const optionValue = `POC Request: ${story.sector}`;
+                              {content.successStories.map((story) => {
+                                const optionValue = `${t.contact.pocPrefix} ${story.sector}`;
                                 return (
                                   <option key={story.id} value={optionValue}>
                                     {optionValue}
@@ -2714,7 +2801,7 @@ export default function App() {
                               htmlFor="demo-notes"
                               className="block text-xs font-medium text-slate-700"
                             >
-                              Site Details or Objectives
+                              {t.contact.notesLabel}
                             </label>
                             <textarea
                               id="demo-notes"
@@ -2724,18 +2811,18 @@ export default function App() {
                               onChange={(e) =>
                                 setForm((prev) => ({...prev, notes: e.target.value}))
                               }
-                              placeholder="Number of cameras, sites, fleet vehicles, or target KPIs..."
+                              placeholder={t.contact.notesPlaceholder}
                               className="mt-1.5 w-full rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-[#0B132B] placeholder:text-slate-400 focus:border-[#0B34D6] focus:outline-none"
                             />
                           </div>
 
                           <div className="flex flex-col items-stretch justify-between gap-3 pt-2 sm:flex-row sm:items-center">
                             <a
-                              href={buildSalesMailtoUrl(form)}
+                              href={buildSalesMailtoUrl(form, lang, content.companyInfo.email)}
                               className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-[#040B29] whitespace-nowrap shrink-0 transition-colors hover:border-[#0B34D6] hover:text-[#0B34D6]"
                             >
                               <Mail className="h-3.5 w-3.5" />
-                              <span>Send via Email App</span>
+                              <span>{t.contact.sendViaApp}</span>
                             </a>
                             <button
                               type="submit"
@@ -2745,12 +2832,16 @@ export default function App() {
                               {isSubmitting ? (
                                 <>
                                   <Loader2 className="h-4 w-4 animate-spin" />
-                                  <span>Sending to {COMPANY_INFO.email}...</span>
+                                  <span>
+                                    {t.contact.sendingPrefix} {content.companyInfo.email}...
+                                  </span>
                                 </>
                               ) : (
                                 <>
                                   <Send className="h-4 w-4" />
-                                  <span>Send Request to {COMPANY_INFO.email}</span>
+                                  <span>
+                                    {t.contact.sendRequestPrefix} {content.companyInfo.email}
+                                  </span>
                                 </>
                               )}
                             </button>
@@ -2771,33 +2862,32 @@ export default function App() {
             <div className="grid grid-cols-1 gap-10 border-b border-white/10 pb-10 md:grid-cols-12">
               <div className="md:col-span-4">
                 <div className="font-display text-lg font-bold text-white">
-                  GSD Technologies Egypt
+                  {content.companyInfo.legalName}
                 </div>
                 <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-400">
-                  Digital Transformation Experts. Turning passive surveillance and operational data
-                  into real-time industrial safety and measurable ROI across Egypt and MEA.
+                  {t.footer.description}
                 </p>
               </div>
 
               <div className="md:col-span-2">
-                <div className="text-xs font-semibold text-white">Pages</div>
+                <div className="text-xs font-semibold text-white">{t.footer.pagesHeading}</div>
                 <ul className="mt-3 space-y-2 text-sm">
                   {[
-                    {label: 'Home', id: 'top' as SectionId, slug: '/'},
-                    {label: 'About GSD', id: 'about' as SectionId, slug: '/about'},
+                    {label: t.nav.home, id: 'top' as SectionId, slug: '/'},
+                    {label: t.nav.about, id: 'about' as SectionId, slug: '/about'},
                     {
-                      label: 'Services Ecosystem',
+                      label: t.nav.ecosystem,
                       id: 'ecosystem' as SectionId,
                       slug: '/gsd-services-ecosystem',
                     },
-                    {label: 'Our Solutions', id: 'solutions' as SectionId, slug: '/our-solutions'},
+                    {label: t.nav.solutions, id: 'solutions' as SectionId, slug: '/our-solutions'},
                     {
-                      label: 'Case Studies',
+                      label: t.nav.caseStudies,
                       id: 'success-stories' as SectionId,
                       slug: '/success-stories',
                     },
-                    {label: 'Our Partners', id: 'partners' as SectionId, slug: '/our-partners'},
-                    {label: 'Contact Us', id: 'contact' as SectionId, slug: '/contact-us'},
+                    {label: t.nav.partners, id: 'partners' as SectionId, slug: '/our-partners'},
+                    {label: t.nav.contact, id: 'contact' as SectionId, slug: '/contact-us'},
                   ].map((link) => (
                     <li key={link.id}>
                       <a
@@ -2816,9 +2906,11 @@ export default function App() {
               </div>
 
               <div className="md:col-span-3">
-                <div className="text-xs font-semibold text-white">Solution Pages</div>
+                <div className="text-xs font-semibold text-white">
+                  {t.footer.solutionPagesHeading}
+                </div>
                 <ul className="mt-3 space-y-2 text-sm">
-                  {SOLUTION_SUBPAGES.map((sub) => (
+                  {localizedSubpages.map((sub) => (
                     <li key={sub.id}>
                       <a
                         href={sub.slug}
@@ -2836,16 +2928,27 @@ export default function App() {
               </div>
 
               <div className="md:col-span-3">
-                <div className="text-xs font-semibold text-white">Cairo Office</div>
+                <div className="text-xs font-semibold text-white">
+                  {t.footer.cairoOfficeHeading}
+                </div>
                 <p className="mt-3 text-sm leading-relaxed text-slate-400">
-                  {COMPANY_INFO.address}
+                  {content.companyInfo.address}
                 </p>
                 <div className="mt-3 flex flex-col gap-1.5 font-mono text-xs text-[#BDE5F6]">
-                  <a href={`mailto:${COMPANY_INFO.email}`} className="hover:underline">
-                    {COMPANY_INFO.email}
+                  <a
+                    dir="ltr"
+                    href={`mailto:${content.companyInfo.email}`}
+                    className={`hover:underline ${isRtl ? 'text-right' : 'text-left'}`}
+                  >
+                    {content.companyInfo.email}
                   </a>
-                  {COMPANY_INFO.phones.map((phone) => (
-                    <a key={phone} href={`tel:${phone}`} className="hover:underline">
+                  {content.companyInfo.phones.map((phone) => (
+                    <a
+                      key={phone}
+                      dir="ltr"
+                      href={`tel:${phone}`}
+                      className={`hover:underline ${isRtl ? 'text-right' : 'text-left'}`}
+                    >
                       {phone}
                     </a>
                   ))}
@@ -2854,8 +2957,17 @@ export default function App() {
             </div>
 
             <div className="mt-8 flex flex-col items-start justify-between gap-4 text-xs text-slate-400 sm:flex-row sm:items-center">
-              <p>Copyright © 2026 GSD Technologies Egypt — All Rights Reserved.</p>
-              <div className="flex items-center gap-4 font-mono text-slate-400">
+              <p>{t.footer.copyright}</p>
+              <div className="flex flex-wrap items-center gap-4 font-mono text-slate-400">
+                <button
+                  type="button"
+                  onClick={toggleLang}
+                  className="inline-flex items-center gap-1.5 font-sans text-xs font-medium text-[#BDE5F6] transition-colors hover:text-white hover:underline"
+                >
+                  <Globe className="h-3.5 w-3.5" />
+                  <span>{t.nav.switchToLabel}</span>
+                </button>
+                <span aria-hidden="true">·</span>
                 <a
                   href="/sitemap.xml"
                   target="_blank"

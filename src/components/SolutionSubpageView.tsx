@@ -1,7 +1,10 @@
 import React from 'react';
 import {ArrowLeft, ArrowRight, Check, ShieldCheck} from 'lucide-react';
-import {SOLUTION_SUBPAGES, SolutionSubpageData} from '../data/solutionSubpages';
+import type {SolutionSubpageData} from '../data/solutionSubpages';
+import {getSolutionSubpages} from '../data/solutionSubpagesAr';
 import {CarrotVisionDashboardPreview} from './CarrotVisionDashboardPreview';
+import {useLanguage} from '../i18n/LanguageContext';
+import {UI_STRINGS} from '../i18n/uiStrings';
 
 interface SolutionSubpageViewProps {
   data: SolutionSubpageData;
@@ -16,7 +19,9 @@ export function SolutionSubpageView({
   onNavigateSubpage,
   onRequestDemo,
 }: SolutionSubpageViewProps) {
-  const siblingPages = SOLUTION_SUBPAGES.filter((item) => item.id !== data.id);
+  const {lang, isRtl} = useLanguage();
+  const t = UI_STRINGS[lang];
+  const siblingPages = getSolutionSubpages(lang).filter((item) => item.id !== data.id);
 
   return (
     <div className="bg-[#F8FAFC]">
@@ -45,7 +50,7 @@ export function SolutionSubpageView({
               }}
               className="transition-colors hover:text-white hover:underline"
             >
-              Home
+              {t.common.homeBreadcrumb}
             </a>
             <span aria-hidden="true" className="text-white/40">
               /
@@ -58,7 +63,7 @@ export function SolutionSubpageView({
               }}
               className="transition-colors hover:text-white hover:underline"
             >
-              Our Solutions
+              {t.solutions.breadcrumb}
             </a>
             <span aria-hidden="true" className="text-white/40">
               /
@@ -69,9 +74,9 @@ export function SolutionSubpageView({
           <div className="mt-6 grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-12">
             <div className="min-w-0 lg:col-span-7">
               <p className="text-xs font-medium text-[#BDE5F6]">
-                {data.eyebrow} · Built for {data.personaBadge}
+                {data.eyebrow} · {t.solutions.builtForPrefix} {data.personaBadge}
               </p>
-              <h1 className="mt-3 font-display text-[clamp(2rem,3.8vw,3.35rem)] font-bold leading-[1.08] tracking-tight text-white [text-wrap:balance]">
+              <h1 className="mt-3 font-display text-[clamp(2rem,3.8vw,3.35rem)] font-bold leading-[1.12] tracking-tight text-white [text-wrap:balance]">
                 {data.h1}
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-200 sm:text-lg">
@@ -84,8 +89,8 @@ export function SolutionSubpageView({
                   onClick={() => onRequestDemo(data.demoPreselect)}
                   className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md bg-white px-6 py-3 text-sm font-semibold text-[#040B29] whitespace-nowrap shrink-0 transition-colors hover:bg-[#BDE5F6]"
                 >
-                  <span>Book Technical Walkthrough</span>
-                  <ArrowRight className="h-4 w-4" />
+                  <span>{t.solutions.bookWalkthrough}</span>
+                  <ArrowRight className={`h-4 w-4 ${isRtl ? 'rotate-180' : ''}`} />
                 </button>
                 <a
                   href="/our-solutions"
@@ -95,8 +100,8 @@ export function SolutionSubpageView({
                   }}
                   className="inline-flex min-h-[44px] items-center justify-center gap-1.5 text-sm font-medium text-[#BDE5F6] whitespace-nowrap shrink-0 transition-colors hover:text-white hover:underline sm:justify-start"
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>All Industry Solutions Hub</span>
+                  <ArrowLeft className={`h-4 w-4 ${isRtl ? 'rotate-180' : ''}`} />
+                  <span>{t.solutions.allHubBack}</span>
                 </a>
               </div>
             </div>
@@ -138,7 +143,12 @@ export function SolutionSubpageView({
           <div className="mt-12 grid grid-cols-1 gap-6 border-t border-white/15 pt-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
             {data.kpis.map((kpi) => (
               <div key={kpi.label} className="min-w-0">
-                <div className="font-mono text-2xl font-semibold tracking-tight text-white tabular-nums sm:text-3xl">
+                <div
+                  dir="ltr"
+                  className={`font-mono text-2xl font-semibold tracking-tight text-white tabular-nums sm:text-3xl ${
+                    isRtl ? 'text-right' : 'text-left'
+                  }`}
+                >
                   {kpi.value}
                 </div>
                 <div className="mt-1 text-sm font-medium text-[#BDE5F6]">{kpi.label}</div>
@@ -154,7 +164,7 @@ export function SolutionSubpageView({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl border-b border-slate-200 pb-6">
             <p className="text-xs font-medium text-[#0B34D6]">
-              Designed for {data.personaBadge}
+              {t.solutions.challengesEyebrowPrefix} {data.personaBadge}
             </p>
             <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl [text-wrap:balance]">
               {data.painPointsHeading}
@@ -169,7 +179,7 @@ export function SolutionSubpageView({
               >
                 <div>
                   <div className="font-mono text-xs font-semibold text-[#0B34D6]">
-                    {item.index} · Operational Challenge
+                    {item.index} · {t.solutions.challengePrefix}
                   </div>
                   <h3 className="mt-2 font-display text-lg font-bold text-[#040B29]">
                     {item.challenge}
@@ -188,7 +198,7 @@ export function SolutionSubpageView({
       {/* Core Capabilities & Optional Carrot Vision Live Dashboard Preview */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
         <div className="max-w-3xl">
-          <p className="text-xs font-medium text-[#0B34D6]">Core Modules &amp; Architecture</p>
+          <p className="text-xs font-medium text-[#0B34D6]">{t.solutions.modulesEyebrow}</p>
           <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-[#040B29] sm:text-3xl [text-wrap:balance]">
             {data.capabilitiesHeading}
           </h2>
@@ -217,9 +227,9 @@ export function SolutionSubpageView({
         <div className="mt-12 rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
           <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-end">
             <div>
-              <p className="text-xs font-medium text-[#0B34D6]">Field Evidence · Egypt &amp; MEA</p>
+              <p className="text-xs font-medium text-[#0B34D6]">{t.solutions.evidenceEyebrow}</p>
               <h2 className="mt-1 font-display text-xl font-bold text-[#040B29]">
-                Proven regional deployments in this vertical
+                {t.solutions.evidenceHeading}
               </h2>
             </div>
             <button
@@ -227,8 +237,8 @@ export function SolutionSubpageView({
               onClick={() => onRequestDemo(data.demoPreselect)}
               className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md bg-[#0B34D6] px-5 py-2.5 text-xs font-semibold text-white whitespace-nowrap shrink-0 transition-colors hover:bg-[#06249E]"
             >
-              <span>Request Custom Site Architecture</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <span>{t.solutions.requestCustomArch}</span>
+              <ArrowRight className={`h-3.5 w-3.5 ${isRtl ? 'rotate-180' : ''}`} />
             </button>
           </div>
 
@@ -252,9 +262,9 @@ export function SolutionSubpageView({
         <div className="mt-12 border-t border-slate-200 pt-10">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-medium text-[#0B34D6]">Explore Dedicated Solutions</p>
+              <p className="text-xs font-medium text-[#0B34D6]">{t.solutions.crossNavEyebrow}</p>
               <h2 className="mt-1 font-display text-xl font-bold text-[#040B29]">
-                Targeted AI architectures for other operational teams
+                {t.solutions.crossNavHeading}
               </h2>
             </div>
             <a
@@ -265,7 +275,7 @@ export function SolutionSubpageView({
               }}
               className="text-xs font-semibold text-[#0B34D6] hover:underline"
             >
-              View Full 8-Platform Services Ecosystem
+              {t.solutions.viewAllEcosystem}
             </a>
           </div>
 
@@ -288,8 +298,8 @@ export function SolutionSubpageView({
                   <p className="mt-2 text-xs leading-relaxed text-slate-600">{sub.hubSummary}</p>
                 </div>
                 <div className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[#040B29] group-hover:text-[#0B34D6]">
-                  <span>Explore Solution Page</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  <span>{t.solutions.exploreSolutionPage}</span>
+                  <ArrowRight className={`h-3.5 w-3.5 ${isRtl ? 'rotate-180' : ''}`} />
                 </div>
               </a>
             ))}

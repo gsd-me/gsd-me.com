@@ -1,5 +1,7 @@
 import React from 'react';
 import {ArrowRight} from 'lucide-react';
+import {useLanguage} from '../i18n/LanguageContext';
+import {UI_STRINGS} from '../i18n/uiStrings';
 
 interface PageHeaderBannerProps {
   breadcrumbLabel: string;
@@ -18,8 +20,12 @@ export function PageHeaderBanner({
   description,
   onNavigateHome,
   onRequestDemo,
-  ctaLabel = 'Request a Demo',
+  ctaLabel,
 }: PageHeaderBannerProps) {
+  const {lang, isRtl} = useLanguage();
+  const t = UI_STRINGS[lang];
+  const resolvedCta = ctaLabel ?? t.common.requestDemoDefault;
+
   return (
     <section className="relative overflow-hidden bg-[#040B29] text-white">
       <div
@@ -44,7 +50,7 @@ export function PageHeaderBanner({
             }}
             className="transition-colors hover:text-white hover:underline"
           >
-            Home
+            {t.common.homeBreadcrumb}
           </a>
           <span aria-hidden="true" className="text-white/40">
             /
@@ -69,8 +75,8 @@ export function PageHeaderBanner({
               onClick={onRequestDemo}
               className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md bg-white px-5 py-2.5 text-sm font-semibold text-[#040B29] whitespace-nowrap shrink-0 transition-colors hover:bg-[#BDE5F6]"
             >
-              <span>{ctaLabel}</span>
-              <ArrowRight className="h-4 w-4" />
+              <span>{resolvedCta}</span>
+              <ArrowRight className={`h-4 w-4 ${isRtl ? 'rotate-180' : ''}`} />
             </button>
           )}
         </div>
